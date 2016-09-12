@@ -68,39 +68,70 @@ void loop() {
 
 //
 int shiftRight(int num, int n){
+  num = num >> n;
   return num;
 }
 
 int shiftLeft(int num, int n){
+  num = num << n;
   return num;
 }
 
 // Fix the following functions, using only the bitwise and Boolean operators
 int hasAOne(int num) {
-  return num;
+  // a number has at least a 1 when it is not 0
+  int isZero = !num;
+  int isOne = !isZero;
+  return isOne;
 }
 
 int hasAZero(int num) {
-  return num;
+  int notNum = ~num; // 0 becomes 1, 1 becomes 0
+  int hasZero = hasAOne(notNum); 
+  return hasZero;
 }
 
 int leastSigHasAOne(int num) {
-  return num;
+  // 1 byte has 8 bits
+  int isOne = num & 11111111;
+  int hasOne = hasAOne(isOne);
+  return hasOne;
 }
 
 int isNegativeInt(int num) {
-  return num;
+  // - 1 stored as signed binary value: 1111111111111111 (16 bits) 
+  // -2: 1111111111111110
+  // -3: 1111111111111101
+  // -32768: 1000000000000000
+  // 1: 1    -1 = (~1: 1111....0) +1
+  // 2: 10   -2 = (~2: 111....01) +1
+  // 3: 11
+  // 32767: (0)111111111111111 (15 bits)
+  // int negSign = num & 1000000000000000; // if it's positive number, the 16th bit is not 1, it returns 0; if it's negative, it returns 1000000000000000
+  int negSign = num & -32768;
+  int isPositive = !negSign;
+  int isNegative = !isPositive;
+  return isNegative;
 }
 
 int isNegativeLong(long num) {
-  return num;
+  // long negSign = num & 10000000000000000000000000000000;
+  long negSign = num & -2147483648; // notice: use long data type here
+  int isPositive = !negSign;
+  int isNegative = !isPositive;
+  return isNegative;
 }
 
 int isNegativeChar(char num) {
-  return num;
+  // int negSign = num & 10000000;
+  int negSign = num & -128;
+  int isPositive = !negSign;
+  int isNegative = !isPositive;
+  return isNegative;
 }
 
 int negate(int num) {
-  return num;
+  int negNum = ~ num + 1;
+  return negNum;
 }
 

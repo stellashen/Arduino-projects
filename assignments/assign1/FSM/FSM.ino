@@ -1,210 +1,259 @@
 /*
    FSM assignment
-*/
+ */
 
 #include <Arduino.h>
 #include <Wire.h>
 
 enum State {
-  up0,        // 0
-  up1,        // 1
-  up2,        // 2
-  up3,        // 3
-  up4,        // 4
-  up5,        // 5
-  up6,        // 6
-  up7,        // 7
-  up8,
-  up9,
-  up10,
-  up11,
-  up12,
-  up13,
-  up14,
-  up15,
+	up0,        // 000
+	up1,        // 100
+	up2,        // 010
+	up3,        // 110
+	up4,        // 001
+	up5,        // 101
+	up6,        // 011
+	up7,        // 111
+	// Reverse circle 8 - 15
+	up8,        // reverse to up6: 011
+	up9,        // reverse to up7: 111
+	up10,       // reverse to up0: 000
+	up11,       // reverse to up1: 100
+	up12,       // reverse to up2: 010
+	up13,       // reverse to up3: 110
+	up14,       // reverse to up4: 001
+	up15,       // reverse to up5: 101
 };
 
-State counterState = up0;
+State counterState = up0; // current state
 
 bool bit1;
 bool bit2;
 bool bit3;
-bool bit4;
-bool change;
 
 void setup() {
-  Serial.begin(9600);
+	Serial.begin(9600);
 }
 
 void loop() {
-  counterState = nextState(counterState);
-  delay(1000);
+	counterState = nextState(counterState);
+	delay(1000);
 }
 
 
 State nextState(State state){
-    switch (state) {
-    case up0:               //When state up0 , the FSM must:
+	switch (state) {
+	case up0:             
 
-      bit1 = 0;        //set the bits to match the Count
-      bit2 = 0;
-      bit3 = 0;
-      bit4 = 0;
+		bit1 = 0;        
+		bit2 = 0;
+		bit3 = 0;
 
-      pprint(state);
-  state = up1;
+		pprint(state);
+		if (checkReverse()){
+			state = up9;
+		}
+		else {
+			state = up1;
+		}
 
-      break;                       //Break to the end of the switch
-    //So the next case won't run
+		break;                       
 
-    case up1:               //only if counterState == up1
-      bit1 = 1;
-      pprint(state);
-      state = up2;
-      break;
+	case up1:              
+		bit1 = 1;
+		pprint(state);
+		if (checkReverse()){
+			state = up10;
+		}
+		else {
+			state = up2;
+		}
+		break;
 
-    case up2:
-      bit1 = 0;
-      bit2 = 1;
-      pprint(state);
-      state = up3;
-      break;
+	case up2:
+		bit1 = 0;
+		bit2 = 1;
+		pprint(state);
+		if (checkReverse()){
+			state = up11;
+		}
+		else {
+			state = up3;
+		}
+		break;
 
-    case up3:
-      bit1 = 1;
-      pprint(state);
-      state = up4;
-      break;
+	case up3:
+		bit1 = 1;
+		pprint(state);
+		if (checkReverse()){
+			state = up12;
+		}
+		else {
+			state = up4;
+		}
+		break;
 
-    case up4:
-      bit1 = 0;
-      bit2 = 0;
-      bit3 = 1;
-      pprint(state);
-      if (change==1){
-        state = up3;
-      }
-      else {
-      state = up5;
-      }
-      break;
+	case up4:
+		bit1 = 0;
+		bit2 = 0;
+		bit3 = 1;
+		pprint(state);
+		if (checkReverse()){
+			state = up13;
+		}
+		else {
+			state = up5;
+		}
+		break;
 
-    case up5:
-      bit1 = 1;
-      pprint(state);
-      if (checkReverse()){
-        state = up4;
-      }
-      else {
-      state = up6;
-      }
-      break;
+	case up5:
+		bit1 = 1;
+		pprint(state);
+		if (checkReverse()){
+			state = up14;
+		}
+		else {
+			state = up6;
+		}
+		break;
 
-    case up6:
-      bit1 = 0;
-      bit2 = 1;
-      pprint(state);
-      if (checkReverse()){
-        state = up5;
-      }
-      else {
-      state = up7;
-      }
-      break;
+	case up6:
+		bit1 = 0;
+		bit2 = 1;
+		pprint(state);
+		if (checkReverse()){
+			state = up15;
+		}
+		else {
+			state = up7;
+		}
+		break;
 
-    case up7:
-      bit1 = 1;
-      pprint(state);
-      if (checkReverse()){
-        state = up6;
-      }
-      else {
-      state = up8;
-      }
-      break;
+	case up7:
+		bit1 = 1;
+		pprint(state);
+		if (checkReverse()){
+			state = up8;
+		}
+		else {
+			state = up0;
+		}
+		break;
 
-    case up8:
-      bit1 = 0;
-      bit2 = 0;
-      bit3 = 0;
-      bit4 = 1;
-      pprint(state);
-      if (checkReverse()){
-        state = up7;
-      }
-      else {
-      state = up9;
-      }
-      break;
-    
-    case up9:
-      bit1 = 1;
-      pprint(state);
-      if (checkReverse()){
-        state = up8;
-      }
-      else {
-      state = up10;
-      }
-      break;
+	case up8:
+		bit1 = 0;
+		bit2 = 1;
+		pprint(state);
+		if (checkReverse()){
+			state = up7;
+		}
+		else {
+			state = up15;
+		}
+		break;
 
-    case up10:
-      bit1 = 0;
-      bit2 = 1;
-      pprint(state);
-      state = up11;
-      break;
+	case up9:
+		bit1 = 1;
+		pprint(state);
+		if (checkReverse()){
+			state = up0;
+		}
+		else {
+			state = up8;
+		}
+		break;
 
-    case up11:
-      bit1 = 1;
-      pprint(state);
-      state = up12;
-      break;
+	case up10:             
 
-    case up12:
-      bit1 = 0;
-      bit2 = 0;
-      bit3 = 1;
-      pprint(state);
-      state = up13;
-      break;
+		bit1 = 0;        
+		bit2 = 0;
+		bit3 = 0;
 
-    case up13:
-      bit1 = 1;
-      pprint(state);
-      state = up14;
-      break;
+		pprint(state);
+		if (checkReverse()){
+			state = up1;
+		}
+		else {
+			state = up9;
+		}
 
-    case up14:
-      bit1 = 0;
-      bit2 = 1;
-      pprint(state);
-      state = up15;
-      break;
+		break;                       
 
-    case up15:
-      bit1 = 1;
-      pprint(state);
-      state = up0;
-      break;
-  }
-  return state;
+	case up11:              
+		bit1 = 1;
+		pprint(state);
+		if (checkReverse()){
+			state = up2;
+		}
+		else {
+			state = up10;
+		}
+		break;
+
+	case up12:
+		bit1 = 0;
+		bit2 = 1;
+		pprint(state);
+		if (checkReverse()){
+			state = up3;
+		}
+		else {
+			state = up11;
+		}
+		break;
+
+	case up13:
+		bit1 = 1;
+		pprint(state);
+		if (checkReverse()){
+			state = up4;
+		}
+		else {
+			state = up12;
+		}
+		break;
+
+	case up14:
+		bit1 = 0;
+		bit2 = 0;
+		bit3 = 1;
+		pprint(state);
+		if (checkReverse()){
+			state = up5;
+		}
+		else {
+			state = up13;
+		}
+		break;
+
+	case up15:
+		bit1 = 1;
+		pprint(state);
+		if (checkReverse()){
+			state = up6;
+		}
+		else {
+			state = up14;
+		}
+		break;
+
+	}
+	return state;
 }
 
 bool checkReverse(){
-  if (Serial.read() != -1){
-    return 1;
-  }
-  return 0;
+	if (Serial.read() != -1){
+		return true;
+	}
+	return false;
 }
 
 void pprint(State state) {
-  Serial.print(state);
-  Serial.print("  :  ");
-  Serial.print(bit4);
-  Serial.print(bit3);
-  Serial.print(bit2);
-  Serial.println(bit1);
+	Serial.print(state);
+	Serial.print("  :  ");
+	Serial.print(bit3);
+	Serial.print(bit2);
+	Serial.println(bit1);
 }
 
 

@@ -50,12 +50,15 @@ State nextState(State state){
 		bit2 = 0;
 		bit3 = 0;
 
-		Serial.print(state);
-		pprint(state);
 		if (checkReverse()){
+			Serial.println("--Reverse--");
+			Serial.print(state);
+			pprint(state);
 			state = up9;
 		}
 		else {
+			Serial.print(state);
+			pprint(state);
 			state = up1;
 		}
 
@@ -63,12 +66,15 @@ State nextState(State state){
 
 	case up1:              
 		bit1 = 1;
-		Serial.print(state);
-		pprint(state);
 		if (checkReverse()){
+			Serial.println("--Reverse--");
+			Serial.print(state);
+			pprint(state);
 			state = up10;
 		}
 		else {
+			Serial.print(state);
+			pprint(state);
 			state = up2;
 		}
 		break;
@@ -76,24 +82,30 @@ State nextState(State state){
 	case up2:
 		bit1 = 0;
 		bit2 = 1;
-		Serial.print(state);
-		pprint(state);
 		if (checkReverse()){
+			Serial.println("--Reverse--");
+			Serial.print(state);
+			pprint(state);
 			state = up11;
 		}
 		else {
+			Serial.print(state);
+			pprint(state);
 			state = up3;
 		}
 		break;
 
 	case up3:
 		bit1 = 1;
-		Serial.print(state);
-		pprint(state);
 		if (checkReverse()){
+			Serial.println("--Reverse--");
+			Serial.print(state);
+			pprint(state);
 			state = up12;
 		}
 		else {
+			Serial.print(state);
+			pprint(state);
 			state = up4;
 		}
 		break;
@@ -102,24 +114,30 @@ State nextState(State state){
 		bit1 = 0;
 		bit2 = 0;
 		bit3 = 1;
-		Serial.print(state);
-		pprint(state);
 		if (checkReverse()){
+			Serial.println("--Reverse--");
+			Serial.print(state);
+			pprint(state);
 			state = up13;
 		}
 		else {
+			Serial.print(state);
+			pprint(state);
 			state = up5;
 		}
 		break;
 
 	case up5:
 		bit1 = 1;
-		Serial.print(state);
-		pprint(state);
 		if (checkReverse()){
+			Serial.println("--Reverse--");
+			Serial.print(state);
+			pprint(state);
 			state = up14;
 		}
 		else {
+			Serial.print(state);
+			pprint(state);
 			state = up6;
 		}
 		break;
@@ -127,24 +145,30 @@ State nextState(State state){
 	case up6:
 		bit1 = 0;
 		bit2 = 1;
-		Serial.print(state);
-		pprint(state);
 		if (checkReverse()){
+			Serial.println("--Reverse--");
+			Serial.print(state);
+			pprint(state);
 			state = up15;
 		}
 		else {
+			Serial.print(state);
+			pprint(state);
 			state = up7;
 		}
 		break;
 
 	case up7:
 		bit1 = 1;
-		Serial.print(state);
-		pprint(state);
 		if (checkReverse()){
+			Serial.println("--Reverse--");
+			Serial.print(state);
+			pprint(state);
 			state = up8;
 		}
 		else {
+			Serial.print(state);
+			pprint(state);
 			state = up0;
 		}
 		break;
@@ -152,24 +176,31 @@ State nextState(State state){
 	case up8:
 		bit1 = 0;
 		bit2 = 1;
-		Serial.print("6");
-		pprint(state);
 		if (checkReverse()){
+			Serial.println("--Reverse--");
+			Serial.print("6");
+			pprint(state);
 			state = up7;
 		}
 		else {
+			Serial.print("6");
+			pprint(state);
 			state = up15;
 		}
 		break;
 
 	case up9:
 		bit1 = 1;
-		Serial.print("7");
-		pprint(state);
+
 		if (checkReverse()){
+			Serial.println("--Reverse--");
+			Serial.print("7");
+			pprint(state);
 			state = up0;
 		}
 		else {
+			Serial.print("7");
+			pprint(state);
 			state = up8;
 		}
 		break;
@@ -179,12 +210,16 @@ State nextState(State state){
 		bit1 = 0;        
 		bit2 = 0;
 		bit3 = 0;
-		Serial.print("0");
-		pprint(state);
+
 		if (checkReverse()){
+			Serial.println("--Reverse--");
+			Serial.print("0");
+			pprint(state);
 			state = up1;
 		}
 		else {
+			Serial.print("0");
+			pprint(state);
 			state = up9;
 		}
 
@@ -192,12 +227,16 @@ State nextState(State state){
 
 	case up11:              
 		bit1 = 1;
-		Serial.print("1");
-		pprint(state);
+
 		if (checkReverse()){
+			Serial.println("--Reverse--");
+			Serial.print("1");
+			pprint(state);
 			state = up2;
 		}
 		else {
+			Serial.print("1");
+			pprint(state);
 			state = up10;
 		}
 		break;
@@ -205,24 +244,30 @@ State nextState(State state){
 	case up12:
 		bit1 = 0;
 		bit2 = 1;
-		Serial.print("2");
-		pprint(state);
 		if (checkReverse()){
+			Serial.println("--Reverse--");
+			Serial.print("2");
+			pprint(state);
 			state = up3;
 		}
 		else {
+			Serial.print("2");
+			pprint(state);
 			state = up11;
 		}
 		break;
 
 	case up13:
 		bit1 = 1;
-		Serial.print("3");
-		pprint(state);
 		if (checkReverse()){
+			Serial.println("--Reverse--");
+			Serial.print("3");
+			pprint(state);
 			state = up4;
 		}
 		else {
+			Serial.print("3");
+			pprint(state);
 			state = up12;
 		}
 		break;
@@ -230,30 +275,37 @@ State nextState(State state){
 	case up14:
 		bit1 = 0;
 		bit2 = 0;
-		bit3 = 1;
-		Serial.print("4");
-		pprint(state);
+		bit3 = 1;		
 		if (checkReverse()){
+			Serial.println("--Reverse--");
+			Serial.print("4");
+			pprint(state);
 			state = up5;
 		}
 		else {
+			Serial.print("4");
+			pprint(state);
 			state = up13;
 		}
 		break;
 
 	case up15:
 		bit1 = 1;
-		Serial.print("5");
-		pprint(state);
 		if (checkReverse()){
+			Serial.println("--Reverse--");
+			Serial.print("5");
+			pprint(state);
 			state = up6;
 		}
 		else {
+			Serial.print("5");
+			pprint(state);
 			state = up14;
 		}
 		break;
 
 	}
+
 	return state;
 }
 

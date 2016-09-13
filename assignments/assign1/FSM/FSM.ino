@@ -6,6 +6,7 @@
 #include <Wire.h>
 
 enum State {
+	// bit 3, bit 2, bit 1
 	up0,        // 000
 	up1,        // 100
 	up2,        // 010
@@ -49,6 +50,7 @@ State nextState(State state){
 		bit2 = 0;
 		bit3 = 0;
 
+		Serial.print(state);
 		pprint(state);
 		if (checkReverse()){
 			state = up9;
@@ -61,6 +63,7 @@ State nextState(State state){
 
 	case up1:              
 		bit1 = 1;
+		Serial.print(state);
 		pprint(state);
 		if (checkReverse()){
 			state = up10;
@@ -73,6 +76,7 @@ State nextState(State state){
 	case up2:
 		bit1 = 0;
 		bit2 = 1;
+		Serial.print(state);
 		pprint(state);
 		if (checkReverse()){
 			state = up11;
@@ -84,6 +88,7 @@ State nextState(State state){
 
 	case up3:
 		bit1 = 1;
+		Serial.print(state);
 		pprint(state);
 		if (checkReverse()){
 			state = up12;
@@ -97,6 +102,7 @@ State nextState(State state){
 		bit1 = 0;
 		bit2 = 0;
 		bit3 = 1;
+		Serial.print(state);
 		pprint(state);
 		if (checkReverse()){
 			state = up13;
@@ -108,6 +114,7 @@ State nextState(State state){
 
 	case up5:
 		bit1 = 1;
+		Serial.print(state);
 		pprint(state);
 		if (checkReverse()){
 			state = up14;
@@ -120,6 +127,7 @@ State nextState(State state){
 	case up6:
 		bit1 = 0;
 		bit2 = 1;
+		Serial.print(state);
 		pprint(state);
 		if (checkReverse()){
 			state = up15;
@@ -131,6 +139,7 @@ State nextState(State state){
 
 	case up7:
 		bit1 = 1;
+		Serial.print(state);
 		pprint(state);
 		if (checkReverse()){
 			state = up8;
@@ -143,6 +152,7 @@ State nextState(State state){
 	case up8:
 		bit1 = 0;
 		bit2 = 1;
+		Serial.print("6");
 		pprint(state);
 		if (checkReverse()){
 			state = up7;
@@ -154,6 +164,7 @@ State nextState(State state){
 
 	case up9:
 		bit1 = 1;
+		Serial.print("7");
 		pprint(state);
 		if (checkReverse()){
 			state = up0;
@@ -168,7 +179,7 @@ State nextState(State state){
 		bit1 = 0;        
 		bit2 = 0;
 		bit3 = 0;
-
+		Serial.print("0");
 		pprint(state);
 		if (checkReverse()){
 			state = up1;
@@ -181,6 +192,7 @@ State nextState(State state){
 
 	case up11:              
 		bit1 = 1;
+		Serial.print("1");
 		pprint(state);
 		if (checkReverse()){
 			state = up2;
@@ -193,6 +205,7 @@ State nextState(State state){
 	case up12:
 		bit1 = 0;
 		bit2 = 1;
+		Serial.print("2");
 		pprint(state);
 		if (checkReverse()){
 			state = up3;
@@ -204,6 +217,7 @@ State nextState(State state){
 
 	case up13:
 		bit1 = 1;
+		Serial.print("3");
 		pprint(state);
 		if (checkReverse()){
 			state = up4;
@@ -217,6 +231,7 @@ State nextState(State state){
 		bit1 = 0;
 		bit2 = 0;
 		bit3 = 1;
+		Serial.print("4");
 		pprint(state);
 		if (checkReverse()){
 			state = up5;
@@ -228,6 +243,7 @@ State nextState(State state){
 
 	case up15:
 		bit1 = 1;
+		Serial.print("5");
 		pprint(state);
 		if (checkReverse()){
 			state = up6;
@@ -242,18 +258,25 @@ State nextState(State state){
 }
 
 bool checkReverse(){
-	if (Serial.read() != -1){
+	int incomingByte = 0;
+	if (Serial.available() > 0) {
+		incomingByte = Serial.read();
+	}
+
+	if (incomingByte > 0){
 		return true;
 	}
+
 	return false;
 }
 
 void pprint(State state) {
-	Serial.print(state);
 	Serial.print("  :  ");
 	Serial.print(bit3);
 	Serial.print(bit2);
 	Serial.println(bit1);
 }
+
+
 
 

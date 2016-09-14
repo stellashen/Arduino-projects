@@ -93,7 +93,7 @@ int hasAZero(int num) {
 
 int leastSigHasAOne(int num) {
   // 1 byte has 8 bits
-  int isOne = num & 11111111;
+  int isOne = num & 0b11111111; // 0b marks it as binary number
   int hasOne = hasAOne(isOne);
   return hasOne;
 }

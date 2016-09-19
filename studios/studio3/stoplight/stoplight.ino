@@ -84,7 +84,7 @@ State nextState(State state) {
 		digitalWrite(9,LOW);
 		digitalWrite(8,HIGH);
 		digitalWrite(12,HIGH);
-		state = up5;
+		state = up0;
 		break;
 	}
 	return state;

@@ -54,6 +54,7 @@ void loop() {
 State nextState(State state) {
 	switch (state) {
 	case up0:
+		digitalWrite(12,LOW);
 		digitalWrite(6,LOW);
 		digitalWrite(11,HIGH);
 		digitalWrite(4,HIGH);
@@ -83,7 +84,7 @@ State nextState(State state) {
 
 	case up4:
 		digitalWrite(9,LOW);
-		digitalWrite(12,LOW); 
+		digitalWrite(11,LOW); 
 		digitalWrite(8,HIGH);
 		digitalWrite(12,HIGH);
 		state = up0;

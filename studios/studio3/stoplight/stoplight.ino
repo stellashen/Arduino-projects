@@ -53,13 +53,13 @@ void loop() {
 	}
 	
 	if(millis() - accumulator > flashingInterval) { 
-		digitalWrite(12,low);
-		digitalWrite(11,low);
-		digitalWrite(10,low);
-		digitalWrite(8,low);
-		digitalWrite(6,low);
-		digitalWrite(5,low);
-		digitalWrite(4,low);
+		digitalWrite(12,LOW);
+		digitalWrite(11,LOW);
+		digitalWrite(10,LOW);
+		digitalWrite(8,LOW);
+		digitalWrite(6,LOW);
+		digitalWrite(5,LOW);
+		digitalWrite(4,LOW);
 	}
 }
 

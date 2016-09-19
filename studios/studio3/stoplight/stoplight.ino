@@ -27,7 +27,9 @@ enum State {
 State counterState = up0; 
 
 unsigned long accumulator = 0;
+
 const int interval = 3041;
+const int flashingInterval = 100;
 void setup() {
 	// put your setup code here, to run once:
 	pinMode(12,OUTPUT);//blue - walk
@@ -48,6 +50,16 @@ void loop() {
 	if(millis() - accumulator > interval) { 
 		accumulator += interval; 
 		counterState = nextState(counterState);
+	}
+	
+	if(millis() - accumulator > flashingInterval) { 
+		digitalWrite(12,low);
+		digitalWrite(11,low);
+		digitalWrite(10,low);
+		digitalWrite(8,low);
+		digitalWrite(6,low);
+		digitalWrite(5,low);
+		digitalWrite(4,low);
 	}
 }
 

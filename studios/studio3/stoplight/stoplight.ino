@@ -6,15 +6,6 @@
  *  
  *  Name: Yangchen Shen
  *  WUSTL Key: sheny
- *  
- *  Name:
- *  WUSTL Key:
- *  
- *  Name:
- *  WUSTL Key:
- *  
- *  Name:
- *  WUSTL Key:
  */
 enum State {
 	up0,        // NSG
@@ -27,9 +18,11 @@ enum State {
 State counterState = up0; 
 
 unsigned long accumulator = 0;
+unsigned long accumulator2 = 0;
 
 const int interval = 3041;
-const int flashingInterval = 100;
+unsigned long t = 0;
+
 void setup() {
 	// put your setup code here, to run once:
 	pinMode(12,OUTPUT);//blue - walk
@@ -47,19 +40,20 @@ void setup() {
 
 void loop() {
 	// put your main code here, to run repeatedly:
+	// to create flashing walk signals
 	if(millis() - accumulator > interval) { 
 		accumulator += interval; 
 		counterState = nextState(counterState);
 	}
-	
-	if(millis() - accumulator > flashingInterval) { 
-		digitalWrite(12,low);
-		digitalWrite(11,low);
-		digitalWrite(10,low);
-		digitalWrite(8,low);
-		digitalWrite(6,low);
-		digitalWrite(5,low);
-		digitalWrite(4,low);
+	// if the current state is not 4, the next state is not 0
+	if(counterState != 0){
+		if(millis() - accumulator2 > interval/5.0) {
+			accumulator2 += interval/5.0; 
+			digitalWrite(11,LOW);
+		}
+		else if(millis() - accumulator2 > interval/10.0){
+			digitalWrite(11,HIGH);
+		}
 	}
 }
 
@@ -67,8 +61,8 @@ State nextState(State state) {
 	switch (state) {
 	case up0:
 		digitalWrite(12,LOW);
-		digitalWrite(6,LOW);
 		digitalWrite(11,HIGH);
+		digitalWrite(6,LOW);
 		digitalWrite(4,HIGH);
 		digitalWrite(8,HIGH);
 		state = up1;
@@ -95,13 +89,13 @@ State nextState(State state) {
 		break;
 
 	case up4:
+		digitalWrite(11,LOW);
+		digitalWrite(12,HIGH);
 		digitalWrite(9,LOW);
 		digitalWrite(11,LOW); 
 		digitalWrite(8,HIGH);
-		digitalWrite(12,HIGH);
 		state = up0;
 		break;
 	}
 	return state;
 }
-

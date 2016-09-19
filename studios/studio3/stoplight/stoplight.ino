@@ -53,10 +53,12 @@ void loop() {
 
 State nextState(State state) {
 	switch (state) {
-	case up0:               
+	case up0:
+		digitalWrite(12,LOW); 
+		digitalWrite(6,LOW);
+		digitalWrite(11,HIGH);
 		digitalWrite(4,HIGH);
 		digitalWrite(8,HIGH);
-		digitalWrite(11,HIGH);
 		state = up1;
 		break;                       
 

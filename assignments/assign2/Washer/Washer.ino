@@ -8,7 +8,8 @@ const int DRY_PIN = 10;
 const int LOCK_PIN = 13;
 
 int optionVal = 0;
-int cycle = 0;
+//int option = 0;
+int sensorValue = 0;
 
 enum State {
 	// 0: idle state - wait for the next cycle
@@ -37,33 +38,17 @@ void setup() {
 }
 
 void loop() {
-	int sensorValue = digitalRead(BUTTON_PIN);
+	sensorValue = digitalRead(BUTTON_PIN);
 	// Test how the button works: 1 as default, 0 when pushed
 	//	Serial.print("Value:");
 	//	Serial.println(sensorValue, DEC);
 
-	// 1.start push button
+	// start push button
 	// when button's pressed -> locked, light on
 	//	if (sensorValue == LOW){
 	//		digitalWrite(LOCK_PIN, HIGH);
 	//	}
 
-	// 2. Cycle knob
-	optionVal = analogRead(POT_PIN); 
-	// read the value from the sensor
-	// Test below
-	//Serial.println(optionVal);
-	// print out values 0 - 1023 (counterclock)
-	// 1023:economy, 400-600:deluxe, 0: super deluxe
-	if (optionVal > 1000){
-		option = 1; //economy
-	}
-	if (optionVal > 400 && optionVal < 600){
-		option = 2; //deluxe
-	}
-	if (optionVal < 10){
-		option = 3; //super deluxe
-	}
 	counterState = nextState(counterState);
 }
 
@@ -82,13 +67,13 @@ State nextState(State state){
 		}
 		else {
 			//			digitalWrite(LOCK_PIN, HIGH);
-			if (option == 1){
+			if (option() == 1){
 				state = up1;
 			}
-			else if (option == 2){
+			else if (option() == 2){
 				state = up3;
 			}
-			else if (option == 3){
+			else if (option() == 3){
 				state = up5;
 			}
 			else{
@@ -103,10 +88,10 @@ State nextState(State state){
 		digitalWrite(COLD_PIN, HIGH);
 		digitalWrite(DRY_PIN, LOW);
 		delay(5000); // use 5s instead of 5min
-		if (option == 2){
+		if (option() == 2){
 			state = up4;
 		}
-		else if (option == 3){
+		else if (option() == 3){
 			state = up7;
 		}
 		else{
@@ -129,7 +114,7 @@ State nextState(State state){
 		digitalWrite(COLD_PIN, LOW);
 		digitalWrite(DRY_PIN, LOW);
 		delay(7000);
-		if (option == 1){
+		if (option() == 1){
 			state = up2;
 		}
 		else{
@@ -152,7 +137,7 @@ State nextState(State state){
 		digitalWrite(COLD_PIN, LOW);
 		digitalWrite(DRY_PIN, LOW);
 		delay(7000);
-		if (option == 1){
+		if (option() == 1){
 			state = up2;
 		}
 		else{
@@ -181,3 +166,21 @@ State nextState(State state){
 	return state;
 }
 
+int option(){
+	// Cycle knob
+	optionVal = analogRead(POT_PIN); 
+	// read the value from the sensor
+	// Test below
+	//Serial.println(optionVal);
+	// print out values 0 - 1023 (counterclock)
+	// 1023:economy, 400-600:deluxe, 0: super deluxe
+	if (optionVal > 900){
+		return 1; //economy
+	}
+	if (optionVal > 400 && optionVal < 600){
+		return 2; //deluxe
+	}
+	if (optionVal < 100){
+		return 3; //super deluxe
+	}
+}

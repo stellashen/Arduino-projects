@@ -11,6 +11,9 @@ int optionVal = 0;
 //int option = 0;
 int sensorValue = 0;
 
+// TA comments: to simplify the program,
+// up5 and 6 can be combined into one state, 
+// up4 and up7 can be combined into one state (same behavior)
 enum State {
 	// 0: idle state - wait for the next cycle
 	// 1-2 : Economy cycle

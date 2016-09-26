@@ -5,7 +5,6 @@ import java.io.InputStream;
 
 public class SerialTestInput {
 
-
 	public static void main(String[] args) {
 		
 		try
@@ -16,7 +15,9 @@ public class SerialTestInput {
 //            OutputStream out = port.getOutputStream();
             int i = in.available();
             System.out.println(i+" bytes can be read from this port.");
+            
             System.out.println(in.read());
+            
 		}
 		catch (Exception e)
 		{

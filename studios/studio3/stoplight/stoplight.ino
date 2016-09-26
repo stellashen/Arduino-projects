@@ -21,7 +21,6 @@ unsigned long accumulator = 0;
 unsigned long accumulator2 = 0;
 
 const int interval = 3041;
-unsigned long t = 0;
 
 void setup() {
 	// put your setup code here, to run once:

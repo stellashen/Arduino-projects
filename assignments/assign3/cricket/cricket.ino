@@ -4,8 +4,8 @@
  *  
  *  Fill this out so we know whose assignment this is.
  *  
- *  Name:
- *  WUSTL Key:
+ *  Name: Yangchen Shen
+ *  WUSTL Key: sheny
  *  
  *  and if two are partnered together
  *  
@@ -16,7 +16,7 @@
 
 void setup() {
   // put your setup code here, to run once:
-
+	analogReference(INTERNAL);
 }
 
 void loop() {

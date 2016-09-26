@@ -15,9 +15,11 @@ public class SerialTestInput {
 //            OutputStream out = port.getOutputStream();
             int i = in.available();
             System.out.println(i+" bytes can be read from this port.");
-            
+            // when use heartbeat.ino, 62 bytes
+            // read(): -1 is returned in the end of the stream
+            while (in.read() > -1){
             System.out.println(in.read());
-            
+            }
 		}
 		catch (Exception e)
 		{

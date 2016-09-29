@@ -15,6 +15,10 @@ import javax.swing.JScrollPane;
 import java.awt.Font;
 
 public class PrintStreamPanel extends JPanel {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	final private JTextField textField;
 	final private PrintStream ps;
 	private JTextArea textArea;

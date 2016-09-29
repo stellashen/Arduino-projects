@@ -1,5 +1,6 @@
 package studio4;
 
+import java.io.BufferedInputStream;
 import java.io.InputStream;
 //import java.io.OutputStream;
 
@@ -23,19 +24,24 @@ public class SerialTestInput {
 			// OutputStream out = port.getOutputStream();
 			int i = in.available();
 			System.out.println(i+" bytes can be read from this port.");
+
+			// reimplement: added ViewInputStream window where data stream in hex
+			BufferedInputStream newChar = new BufferedInputStream(in);
+			@SuppressWarnings("resource")
+			ViewInputStream v = new ViewInputStream(newChar);
 			while(true){
-				if (in.available() > 0){
+				if (in.available()>0){
+					// data in hex goes through the ViewInputStream window
+					v.read();
+					// print ASCII value in Java console
 					char text = (char)in.read();
 					System.out.print(text);
 				}
 			}
-
 		}
 		catch (Exception e)
 		{
 			e.printStackTrace();
 		}
-
 	}
-
 }

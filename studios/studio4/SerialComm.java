@@ -25,7 +25,7 @@ public class SerialComm {
     	} catch(NoSuchPortException e) {
     		System.out.println("ERROR: Port not found.");
     		System.out.println("Did you mean one of these?");
-    		Enumeration ports = CommPortIdentifier.getPortIdentifiers();
+    		Enumeration<?> ports = CommPortIdentifier.getPortIdentifiers();
         	while (ports.hasMoreElements()) {
         		CommPortIdentifier com = (CommPortIdentifier) ports.nextElement();
         		System.out.println("\t- " + com.getName());
@@ -97,13 +97,10 @@ public class SerialComm {
         {        	
             SerialComm s = new SerialComm();
             s.connect("/dev/cu.usbserial-DN01JD4W"); // Adjust this to be the right port for your machine
-            InputStream in = s.getInputStream();
-            OutputStream out = s.getOutputStream();
+            // InputStream in = s.getInputStream();
+            // OutputStream out = s.getOutputStream();
             // InputStream and OutputStream are now available for use
             // insert code below to use them
-    		BufferedInputStream newChar = new BufferedInputStream(in);
-    		ViewInputStream v = new ViewInputStream(newChar);
-    		v.read();
             
         }
         catch ( Exception e )

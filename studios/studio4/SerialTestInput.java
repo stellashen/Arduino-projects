@@ -19,16 +19,17 @@ public class SerialTestInput {
 		{
 			SerialComm port = new SerialComm(); 
 			port.connect("/dev/cu.usbserial-DN01JD4W");
-			InputStream in = port.getInputStream();
-			//            OutputStream out = port.getOutputStream();
+			InputStream in = port.getInputStream();			
+			// OutputStream out = port.getOutputStream();
 			int i = in.available();
 			System.out.println(i+" bytes can be read from this port.");
-			// when use heartbeat.ino, 62 bytes
-			// read(): -1 is returned in the end of the stream
-			while (in.read() > -1){
-				char text = (char) in.read();
-				System.out.println(text);
+			while(true){
+				if (in.available() > 0){
+					char text = (char)in.read();
+					System.out.print(text);
+				}
 			}
+
 		}
 		catch (Exception e)
 		{

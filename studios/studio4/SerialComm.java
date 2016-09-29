@@ -82,6 +82,7 @@ public class SerialComm {
     }
     
     public InputStream getInputStream() {
+    	//wrapping
     	return(in);
     }
     
@@ -100,7 +101,9 @@ public class SerialComm {
             OutputStream out = s.getOutputStream();
             // InputStream and OutputStream are now available for use
             // insert code below to use them
-            
+    		BufferedInputStream newChar = new BufferedInputStream(in);
+    		ViewInputStream v = new ViewInputStream(newChar);
+    		v.read();
             
         }
         catch ( Exception e )

@@ -82,7 +82,6 @@ public class SerialComm {
     }
     
     public InputStream getInputStream() {
-    	//wrapping
     	return(in);
     }
     

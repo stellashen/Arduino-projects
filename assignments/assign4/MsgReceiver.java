@@ -23,7 +23,7 @@ public class MsgReceiver {
         try
         {        	
             SerialComm s = new SerialComm();
-            s.connect("COM4"); // Adjust this to be the right port for your machine
+            s.connect("/dev/cu.usbserial-DN01JD4W"); // Adjust this to be the right port for your machine
             InputStream in = s.getInputStream();
             MsgReceiver msgr = new MsgReceiver(in);
             msgr.run();

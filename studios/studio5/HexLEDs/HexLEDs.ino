@@ -14,7 +14,7 @@ void setup() {
 
 //5.2 Displaying on LEDs
 int myVar=0;
-char decVar=0;
+int decVar=100;
 
 void loop() {
 	//5.1 Reading from Serial Port
@@ -30,27 +30,27 @@ void loop() {
 		// ASCII 0 is decimal 48, ASCII 9 is decmial 57
 		// ASCII A is decimal 65, Z is 90
 		// a is 97, z is 122
-		if (myVar < 48 || (myVar > 57 && myVar < 65) 
-				|| (myVar > 90 && myVar < 97) || myVar > 122){
-			// if the input is not letter or number, do nothing
-			break;
+
+		//convert 0 to 0... 9 to 9
+		if (myVar >= 48 && myVar <= 57){
+			decVar = myVar - 48;
 		}
-		else {
-			//convert 0 to 0... 9 to 9
-			if (myVar <= 57){
-				decVar = myVar - 48;
-			}
-			//convert A to 10, B to 11,..., Z to 35 
-			else if (myVar <= 90 ){
-				decVar = myVar - 55;
-			}
-			//convert a to 36, b to 37,...,z to 61
-			else {
-				decVar = myVar - 61;
-			}
-			Serial.println(decVar);
+		//convert A to 10, B to 11,..., Z to 35 
+		if (myVar >= 65 && myVar <= 90 ){
+			decVar = myVar - 55;
 		}
+		//convert a to 36, b to 37,...,z to 61
+		if (myVar >= 97 && myVar <=122) {
+			decVar = myVar - 61;
+		}
+		// print only when the input is valid(letter or number)
+		if (decVar >= 0 && decVar <=61){
+			//Serial.println(decVar);
+			Serial.println(myVar);
+		}
+
+		//set back to default (because this is a loop)
+		//or it will always be valid (taking the previous value)
+		decVar = 100;
 	}
-
-
 }

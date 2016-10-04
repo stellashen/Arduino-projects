@@ -24,7 +24,10 @@ public class ViewInputStream extends FilterInputStream {
         // TODO
         // use super.read() to access the next byte from the InputStream
         // also, you can use ps like System.out to print to the new window
-
+    	int character = super.read();
+    	String thisString = Integer.toHexString(character);
+		ps.print(thisString);
+		return character;
     }
     
 }

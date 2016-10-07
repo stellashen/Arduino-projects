@@ -13,14 +13,31 @@
  *  WUSTL Key:
  */
 
+/*
+ * How Serial.write() works:
+ */
+//long i = 17;
+//0x00000011
+//Serial.write(i); >> 0x11
+//long i = 256
+//0x00000100
+//Serial.write(i); >> 0x00
+// it will only take the right two bits (1 byte, the least significant byte)
+
+//Serial.write(45); // send a byte with the value 45
+//int bytesSent = Serial.write(“hello”); //send the string “hello” and return the length of the string.
+
+
 //potentiometer
 const int potPin = A0;
 int potVal = 0;
+int p1 = 0;
 
 //temperature sensor
 const int tempPin = A1;
-float val = 0;
-float voltage = 0;
+int val = 0;
+int v1 = 0;
+int voltage = 0;
 float temperature = 0;
 const int FILTER_COUNTS = 10;
 float temps[FILTER_COUNTS]; 
@@ -29,10 +46,18 @@ float sum = 0;
 float avg = 0;
 
 //delta time
-unsigned timeStamp = 0;
+unsigned long timeStamp = 0;
+unsigned long t1=0;
+unsigned long t2=0;
+unsigned long t3=0;
 unsigned long accumulator = 0;
 unsigned long accumulator2 = 0;
 const int interval = 1000;//1 hz is 1 sec
+
+//rawbits
+int r1=0;
+int r2=0;
+int r3=0;
 
 void setup() {
 	Serial.begin(9600);
@@ -54,25 +79,46 @@ void loop() {
 
 	if(timeStamp - accumulator > interval) { 
 		accumulator += interval; 
-		//protocol: 6 things to send
+		//0. debugging string
+		Serial.write(0x21);
+		Serial.write(0x30);
+		Serial.write("Test");
 		//1. timestamp: timeStamp
-		Serial.print("Time: ");
-		Serial.println(timeStamp);
+		Serial.write(0x21);
+		Serial.write(0x32);
+		t1 = timeStamp >> 24;
+		t2 = timeStamp >> 16;
+		t3 = timeStamp >> 8;
+		Serial.write(t1);
+		Serial.write(t2);
+		Serial.write(t3);
+		Serial.write(timeStamp);
 		//2. the potentiometer reading: potVal
 		potVal = analogRead(potPin);
-		Serial.print("The potentiometer reading: ");
-		Serial.println(potVal);
+		Serial.write(0x21);
+		Serial.write(0x33);
+		p1 = potVal >> 8;
+		Serial.write(p1);
+		Serial.write(potVal);
 		//3. unfiltered, raw temperature value: val
 		val = analogRead(tempPin);
-		Serial.print("Unfiltered raw value of temperature: ");
-		Serial.println(val);
+		Serial.write(0x21);
+		Serial.write(0x34);
+		v1 = val >> 8;
+		Serial.write(v1);
+		Serial.write(val);
 		//4. unfiltered temp in Celsius: temperature
 		// Vmeasured = analogRead()*5V/1023
 		// Temp = Vmeasured*100-50
 		voltage = val*5/1023;
 		temperature = 100*voltage - 50;
-		Serial.print("Unfiltered temperature in Celsius: ");
-		Serial.println(temperature);
+		Serial.write(0x21);
+		Serial.write(0x35);
+		float f = temperature; unsigned long rawBits; rawBits = *(unsigned long *) &f; 
+		Serial.write(rawBits>>24);
+		Serial.write(rawBits>>16);
+		Serial.write(rawBits>>8);
+		Serial.write(rawBits);
 		//5. filtered temp in Celsius: avg
 		for (int i = 0; i < FILTER_COUNTS; i++){
 			sum = sum + temps[i];
@@ -80,16 +126,25 @@ void loop() {
 		avg = sum/FILTER_COUNTS;
 		sum = 0;
 		count = 0;
-		Serial.print("Filtered temperature in Celsius: ");
-		Serial.println(avg);
+		float f2 = avg; unsigned long rawBits2; rawBits2 = *(unsigned long *) &f2; 
+
+		// Serial.print("Filtered temperature in Celsius: ");
+		Serial.write(0x21);
+		Serial.write(0x36);
+		r1=rawBits2>>24;
+		r2=rawBits2>>16;
+		r3=rawBits2>>8;
+		Serial.write(r1);
+		Serial.write(r2);
+		Serial.write(r3);
+		Serial.write(rawBits2);
 
 		//6.error string if the potentiometer reading is over 800
 		if (potVal > 800){
-			Serial.println("Error: Alarm! The potentiometer reading is over 800.");
+			Serial.write(0x21);
+			Serial.write(0x31);
+			Serial.write("High Alarm");
 		}
-		
-		//empty line
-		Serial.println();
-		
+
 	}
 }

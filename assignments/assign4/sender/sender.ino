@@ -13,21 +13,6 @@
  *  WUSTL Key:
  */
 
-/*
- * How Serial.write() works:
- */
-//long i = 17;
-//0x00000011
-//Serial.write(i); >> 0x11
-//long i = 256
-//0x00000100
-//Serial.write(i); >> 0x00
-// it will only take the right two bits (1 byte, the least significant byte)
-
-//Serial.write(45); // send a byte with the value 45
-//int bytesSent = Serial.write(“hello”); //send the string “hello” and return the length of the string.
-
-
 //potentiometer
 const int potPin = A0;
 int potVal = 0;

@@ -37,7 +37,7 @@ int p1 = 0;
 const int tempPin = A1;
 int val = 0;
 int v1 = 0;
-int voltage = 0;
+float voltage = 0;
 float temperature = 0;
 const int FILTER_COUNTS = 10;
 float temps[FILTER_COUNTS]; 
@@ -69,7 +69,7 @@ void loop() {
 	if(millis() - accumulator2 > interval/FILTER_COUNTS) { 
 		accumulator2 += interval/FILTER_COUNTS; 
 		val = analogRead(tempPin);
-		voltage = val*5/1023;
+		voltage = val*5/1023.0;
 		temperature = 100*voltage - 50;
 		temps[count % FILTER_COUNTS] = temperature;
 		count = count + 1;
@@ -82,6 +82,8 @@ void loop() {
 		//0. debugging string
 		Serial.write(0x21);
 		Serial.write(0x30);
+		Serial.write(0x00);
+		Serial.write(0x04);
 		Serial.write("Test");
 		//1. timestamp: timeStamp
 		Serial.write(0x21);
@@ -110,8 +112,14 @@ void loop() {
 		//4. unfiltered temp in Celsius: temperature
 		// Vmeasured = analogRead()*5V/1023
 		// Temp = Vmeasured*100-50
-		voltage = val*5/1023;
+		voltage = val*5/1023.0;
 		temperature = 100*voltage - 50;
+//		Serial.print("raw:");
+//		Serial.print(val);
+//		Serial.print("voltage:");
+//		Serial.print(voltage);
+//		Serial.print("temperature:");
+//		Serial.print(temperature);
 		Serial.write(0x21);
 		Serial.write(0x35);
 		float f = temperature; unsigned long rawBits; rawBits = *(unsigned long *) &f; 
@@ -143,6 +151,8 @@ void loop() {
 		if (potVal > 800){
 			Serial.write(0x21);
 			Serial.write(0x31);
+			Serial.write(0x00);
+			Serial.write(0x0A);
 			Serial.write("High Alarm");
 		}
 

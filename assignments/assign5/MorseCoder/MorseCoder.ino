@@ -39,6 +39,7 @@ void convertIncomingCharsToMorseCode() {
 	// Serial.print(words);
 	int numUnits = 3;
 	if(count<words.length()){
+		// ' ' indicates: between words
 		if(words[count]==' '){
 			numUnits = 7;
 		}
@@ -59,91 +60,52 @@ void convertIncomingCharsToMorseCode() {
 
 			String letter = morseEncode(words[count]);
 			Serial.println(letter);
-			
+
+			//start of one letter: go through morse codes of this letter
+			if(letterCount<letter.length()){
+				// 1 unit between the same letter's codes
+				if(millis() - accumulator >= timeUnit){
+					accumulator += timeUnit;
+
+					Serial.print("start time: ");
+					Serial.println(millis());
+
+					char m = letter[letterCount];
+					// if m==' ', do nothing
+					if (m=='.'){
+						//light LED for 1 unit
+						digitalWrite(led,HIGH);
+						if(millis() - accumulator >= timeUnit){
+							accumulator += timeUnit;
+							digitalWrite(led,LOW);
+							Serial.print("end time: ");
+							Serial.println(millis());
+						}
+					}
+					if (m=="-"){
+						//light LED for 3 units
+						digitalWrite(led,HIGH);
+						if(millis() - accumulator >= 3*timeUnit){
+							accumulator += 3*timeUnit;
+							digitalWrite(led,LOW);
+							Serial.print("end time: ");
+							Serial.println(millis());
+						}
+					}
+
+					letterCount = letterCount + 1;
+				}
+			}
+			else{
+				letterCount = 0; //reset letterCount to 0 for processing the next letter
+			}
+			//end of one letter
 			count = count + 1;
 		}
 	}
 
-	//	for (int i=0; i<words.length(); i++){
-	//		String letter = morseEncode(words[i]);
-	//		//***print for testing****
-	//		Serial.print("The morse code for ");
-	//		Serial.print(words[i]);
-	//		Serial.print(" is ");
-	//		Serial.println(letter);
-
-	//		Serial.print(letter);
-
-	//		// ' ' indicates: between words		
-	//		if(words[i]==' '){
-	//			digitalWrite(led,LOW);
-	//			if(millis() - accumulator > 4*timeUnit){
-	//				Serial.println(millis());
-	//				accumulator += 4*timeUnit; 
-	//				ledBlink(letter);
-	//			}
-	//		}
-	//		else {
-	//			ledBlink(letter);
-	//			digitalWrite(led, LOW);
-	//			//two more units between the codes for two letters
-	//		}
-	//		
-
-}
-
-// added this function to make led blink
-//void ledBlink(String letter){
-//	for(int j=0; j<letter.length();j++){
-//		//***print for testing****
-//		Serial.print("Code");
-//		Serial.print(j);
-//		Serial.print(" is ");
-//		Serial.println(letter[j]);
-//
-//		digitalWrite(led, HIGH);
-//
-//		if(letter[j]=='.'){
-//			if(millis() - accumulator > timeUnit) { 
-//				accumulator += timeUnit; 
-//				digitalWrite(led, LOW);
-//			}
-//		}
-//		if(letter[j]=='-'){
-//			if(millis() - accumulator > 3*timeUnit) { 
-//				accumulator += 3*timeUnit; 
-//				digitalWrite(led, LOW);
-//			}
-//		}
-//		// 1 unit between the codes within the same letter
-//		if(millis() - accumulator > timeUnit) { 
-//			accumulator += timeUnit; 
-//		}
-//	}
-//}
-
-/*
- * print testing output:
-The morse code for H is ....
-Code0 is .
-Code1 is .
-Code2 is .
-Code3 is .
- * 
- */
 
 void loop() {
 	// No Need to Modify this.  Put most of your code in "convertIncomingCharsToMorseCode()"
 	convertIncomingCharsToMorseCode();
-
-	// test toUpper()
-	//  char trya = 'a';
-	//  char tryB = 'B';
-	//  char try0 = '0';
-	//  char tryOther = '!';
-	//  Serial.println(toUpper(trya));
-	//  Serial.println(toUpper(tryB));
-	//  Serial.println(toUpper(try0));
-	//  Serial.println(toUpper(tryOther));
-
 }

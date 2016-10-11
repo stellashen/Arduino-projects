@@ -1,9 +1,12 @@
 #include"MorseCodes.h"
 
 const int led = 13;
-int timeUnit = 2000;//slow testing
+int timeUnit = 1000;//slow testing
 //int timeUnit = 500;
 unsigned long accumulator = 0;
+int count = 0;
+String words = "";
+int letterCount = 0;
 
 // Argument: Any character
 // Return Value: Either:
@@ -29,72 +32,95 @@ void setup() {
 
 void convertIncomingCharsToMorseCode() {
 	// TODO
-	String words = "";
 	while(Serial.available() > 0){
 		char ch = Serial.read();
 		words = words + toUpper(ch);
 	}
 	// Serial.print(words);
-	for(int i=0;i<words.length();i++){
-		String letter = morseEncode(words[i]);
-		//***print for testing****
-		//		Serial.print("The morse code for ");
-		//		Serial.print(words[i]);
-		//		Serial.print(" is ");
-		//		Serial.println(letter);
-
-		Serial.print(letter);
-
-		// ' ' indicates: between words		
-		if(words[i]==' '){
-			if(millis() - accumulator > 4*timeUnit){
-				accumulator += 4*timeUnit; 
-				digitalWrite(led,LOW);
-				ledBlink(words[i]);
+	int numUnits = 3;
+	if(count<words.length()){
+		if(words[count]==' '){
+			numUnits = 7;
+		}
+		if(count==0){
+			numUnits = 0;
+		}
+		// no wait for the 0th word
+		// if it's between words, wait 7 units; else, wait 3 units
+		if(millis() - accumulator >= numUnits*timeUnit){
+			if (count==0){
+				accumulator = millis();
 			}
-		}
-		else {
-			ledBlink(words[i]);
-		}
+			accumulator += numUnits*timeUnit;
 
+			//testing code for delta timing
+			Serial.println(millis()); 
+			Serial.println(words[count]);
+
+			String letter = morseEncode(words[count]);
+			Serial.println(letter);
+			
+			count = count + 1;
+		}
 	}
+
+	//	for (int i=0; i<words.length(); i++){
+	//		String letter = morseEncode(words[i]);
+	//		//***print for testing****
+	//		Serial.print("The morse code for ");
+	//		Serial.print(words[i]);
+	//		Serial.print(" is ");
+	//		Serial.println(letter);
+
+	//		Serial.print(letter);
+
+	//		// ' ' indicates: between words		
+	//		if(words[i]==' '){
+	//			digitalWrite(led,LOW);
+	//			if(millis() - accumulator > 4*timeUnit){
+	//				Serial.println(millis());
+	//				accumulator += 4*timeUnit; 
+	//				ledBlink(letter);
+	//			}
+	//		}
+	//		else {
+	//			ledBlink(letter);
+	//			digitalWrite(led, LOW);
+	//			//two more units between the codes for two letters
+	//		}
+	//		
+
 }
 
 // added this function to make led blink
-void ledBlink(String s){
-	for(int j=0; j<s.length();j++){
-		//***print for testing****
-		//			Serial.print("Code");
-		//			Serial.print(j);
-		//			Serial.print(" is ");
-		//			Serial.println(letter[i]);
-
-		// 1 unit between the codes within the same letter
-		if(millis() - accumulator > timeUnit){
-			accumulator += timeUnit; 
-			if(letter[i]=='.'){
-				digitalWrite(led, HIGH);
-				if(millis() - accumulator > timeUnit) { 
-					accumulator += timeUnit; 
-					digitalWrite(led, LOW);
-				}
-			}
-			if(letter[i]=='-'){
-				digitalWrite(led, HIGH);
-				if(millis() - accumulator > 3*timeUnit) { 
-					accumulator += 3*timeUnit; 
-					digitalWrite(led, LOW);
-				}
-			}
-			digitalWrite(led, LOW);
-		}
-		//two more units between the codes for two letters
-		if(millis() - accumulator > 2*timeUnit){
-			accumulator += 2*timeUnit; 
-			digitalWrite(led, LOW);
-		}
-	}
-}
+//void ledBlink(String letter){
+//	for(int j=0; j<letter.length();j++){
+//		//***print for testing****
+//		Serial.print("Code");
+//		Serial.print(j);
+//		Serial.print(" is ");
+//		Serial.println(letter[j]);
+//
+//		digitalWrite(led, HIGH);
+//
+//		if(letter[j]=='.'){
+//			if(millis() - accumulator > timeUnit) { 
+//				accumulator += timeUnit; 
+//				digitalWrite(led, LOW);
+//			}
+//		}
+//		if(letter[j]=='-'){
+//			if(millis() - accumulator > 3*timeUnit) { 
+//				accumulator += 3*timeUnit; 
+//				digitalWrite(led, LOW);
+//			}
+//		}
+//		// 1 unit between the codes within the same letter
+//		if(millis() - accumulator > timeUnit) { 
+//			accumulator += timeUnit; 
+//		}
+//	}
+//}
 
 /*
  * print testing output:

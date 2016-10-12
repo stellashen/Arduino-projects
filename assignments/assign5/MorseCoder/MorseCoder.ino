@@ -53,6 +53,7 @@ void convertIncomingCharsToMorseCode() {
 		 *           which is 1 unit*(letter.length()-1)
 		 * + time to process dash and dot, 
 		 *           which is 1 unit * number of dots + 3 units * number of dashes
+		 * 
 		 *           
 		 * Therefore, do step1 & step2.
 		 */
@@ -90,40 +91,58 @@ void convertIncomingCharsToMorseCode() {
 		}
 
 		// update the total time
-
 		numUnits = numUnits + letter.length() - 1 + numDot + 3*numDash;
 
-		if (count==0 && first==true){
-			// only do this for the first time: set accumulator to the start time
-			accumulator = millis();
-			first = false;
-
-			//testing
-			Serial.println("Start");
-			Serial.print("accumulator:");
-			Serial.println(accumulator);
-			Serial.println("End");
-
-			ledBlinking(accumulator,letter);
-		}
+//		if (count==0 && first==true){
+//			// only do this for the first time: set accumulator to the start time
+//			first = false;
+//			accumulator = millis();
+//
+//			//testing
+//			Serial.println("Start");
+//			Serial.println(words[count]);
+//			Serial.println(letter);
+//			Serial.print("accumulator:");
+//			Serial.println(accumulator);
+//
+//			ledBlinking(accumulator,letter);
+//		}
 
 		// go to the next letter only after "the total time" used to process this letter
-		if(millis() - accumulator >= numUnits*timeUnit){
-			accumulator += numUnits*timeUnit;
+		if(count==0){
+			if(millis() - accumulator >= (3+numUnits)*timeUnit){
+				accumulator += (3+numUnits)*timeUnit;
+				count = count + 1;
+				//testing results show the accumulator reading 
+				//...after processing the letter on round count (starting from 0)
+				letter = morseEncode(words[count]);
+				Serial.println(words[count]);
+				Serial.println(letter);
+				Serial.print("accumulator:");
+				Serial.println(accumulator);
 
-			//testing results show the accumulator reading 
-			//...after processing the letter on round count (starting from 0)
-			Serial.println(words[count]);
-			Serial.println(letter);
-			Serial.print("accumulator:");
-			Serial.println(accumulator);
-			Serial.print("count: ");
-			Serial.println(count);
-			Serial.println("End");
+				ledBlinking(accumulator,letter);
 
-			count = count + 1;
+				Serial.println("End of testing this letter");
+				Serial.println();
+			}
+		}
+		else{
+			if(millis() - accumulator >= numUnits*timeUnit){
+				accumulator += numUnits*timeUnit;
+				count = count + 1;
+				//testing results show the accumulator reading 
+				//...after processing the letter on round count (starting from 0)
+				Serial.println(words[count]);
+				Serial.println(letter);
+				Serial.print("accumulator:");
+				Serial.println(accumulator);
 
-			ledBlinking(accumulator,letter);
+				ledBlinking(accumulator,letter);
+
+				Serial.println("End of testing this letter");
+				Serial.println();
+			}
 		}
 	}
 }
@@ -140,6 +159,7 @@ unsigned long time[12] = {0,0,0,0,0,0,0,0,0,0,0,0};
 // time[3]=time[2]+timeUnit*codes[1]:time to start interval(light off),...
 //...time[11]=time[10]+timeUnit*codes[5]
 int ledOn[11] = {1,0,1,0,1,0,1,0,1,0,1};
+int m = 0;
 
 void ledBlinking(unsigned long startTime, String morseCodesForLetter){
 	int numCodes = morseCodesForLetter.length();
@@ -177,44 +197,24 @@ void ledBlinking(unsigned long startTime, String morseCodesForLetter){
 		Serial.print("  LED:");
 		Serial.println(ledOn[k]);
 	}
-}
-	//	while (j < morseCodesForLetter.length()){
-	//		// "time < startTime" ensures that we set time to startTime *only once* for each letter
-	//		if(millis() - accumulator >= startTime && time < startTime){
-	//			time = startTime;
-	//			digitalWrite(led,HIGH);
-	//		}
-	//		//case1
-	//		if(morseCodesForLetter[j]=='.'){
-	//			// LED set to LOW after 1 time unit
-	//			if(millis() - accumulator >= time+timeUnit){
-	//				time += timeUnit;
-	//				digitalWrite(led,LOW);
-	//			}
-	//			// go to the next code after adding 1 time unit between codes
-	//			if(millis() - accumulator >= time+timeUnit){
-	//				time += 2*timeUnit;
-	//				j=j+1;
-	//			}
-	//		}
-	//		//case2
-	//		if(morseCodesForLetter[j]=='-'){
-	//			if(millis() - accumulator >= time && millis() - accumulator < time+3*timeUnit){
-	//				time += 3*timeUnit;
-	//				digitalWrite(led,HIGH);
-	//			}
-	//			// go to the next code after adding 1 time unit between codes
-	//			if(millis() - accumulator >= time+timeUnit && millis() - accumulator < time+timeUnit){
-	//				time += timeUnit;
-	//				j=j+1;
-	//			}
-	//		}
-	//
-	//	}
-	//	else{
-	//		j=0; //reset to 0 for the next letter
-	//	}
 
+	while (m < 2*numCodes){
+		if(millis() - accumulator >= time[m]){
+			digitalWrite(led,ledOn[m]);
+
+			//testing
+			Serial.print("m: ");
+			Serial.print(m);
+			Serial.print("      Time to turn on/off the LED: ");
+			Serial.print(time[m]);
+			Serial.print( "     LED: ");
+			Serial.println(ledOn[m]);
+
+			m=m+1;
+		}
+	}
+	m=0;//reset to 0
+}
 
 
 void loop() {

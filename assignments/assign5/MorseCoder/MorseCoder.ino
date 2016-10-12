@@ -5,8 +5,8 @@ int timeUnit = 1000;//testing
 //int timeUnit = 500;
 unsigned long accumulator = 0;
 int count = 0;
-String words = "";
-bool first = true;
+//bool first = true;
+int i = 0;
 
 // Argument: Any character
 // Return Value: Either:
@@ -35,53 +35,43 @@ void setup() {
  * Because String word and int count are outside of this funciton, 
  *         this would work for sending a second, third,... input.
  */
+
+// Assume words.length() <= 25
+String words = "";
+int w = 0;
+int numDot = 0;
+int numDash = 0;
+int numUnitsWait[25] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+int numUnitsWithinLetter[25] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+int numUnitsStart[25] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+int r = 1;
 void convertIncomingCharsToMorseCode() {
 	// TODO
 	while(Serial.available() > 0){
-		first = true;
 		char ch = Serial.read();
 		words = words + toUpper(ch);
-		//array of accumulator reading at the start point of each round
+
+		//set the initial start time
+		accumulator = millis();
 	}
-	// Serial.print(words);
-	if(count<words.length()){
-		/*Consider: How long does this letter take in total? 
-		 * Total = 
-		 * wait time between letters, 
-		 *           which is numUnits = 3 or 7 (or 0, for the 0th letter only)
-		 * + wait time between codes of this letter, 
-		 *           which is 1 unit*(letter.length()-1)
-		 * + time to process dash and dot, 
-		 *           which is 1 unit * number of dots + 3 units * number of dashes
-		 * 
-		 *           
-		 * Therefore, do step1 & step2.
-		 */
-		String letter = morseEncode(words[count]);
+	//Serial.println(words);
 
-		//Step1. get the time between letters
-		int numUnits = 0;
-		//special case: no wait for the 0th letter
-		if(count==0){
-			numUnits = 0;
-		}
-		else{
-			// ' ' indicates: between words
-			// wait 7 units instead
-			if(words[count]==' '){
-				numUnits = 7; 
-			}
-			else{
-				numUnits = 3;
-			}
+	while(w < words.length()){
+		//Step1. get the wait time between letters
+		numUnitsWait[w] = 3;
+		// ' ' indicates: between words, wait 7 units instead
+		if(words[w] == ' '){
+			numUnitsWait[w] = 7; 
 		}
 
+		// morse codes for the wth letter in the String words
+		String letterCodes = morseEncode(words[w]);
 		//Step2. add other time
 		//get the number of dot and dash in the morse codes of this letter
-		int numDot = 0;
-		int numDash = 0;
-		for (int i = 0; i < letter.length(); i++){
-			char m = letter[i];
+		numDot = 0;
+		numDash = 0;
+		for (int j = 0; j < letterCodes.length(); j++){
+			char m = letterCodes[j];
 			if(m=='.'){
 				numDot = numDot+1;
 			}
@@ -89,63 +79,75 @@ void convertIncomingCharsToMorseCode() {
 				numDash = numDash+1;
 			}
 		}
+		numUnitsWithinLetter[w] = letterCodes.length() - 1 + numDot + 3*numDash;
 
-		// update the total time
-		numUnits = numUnits + letter.length() - 1 + numDot + 3*numDash;
+		//testing
+		Serial.println(letterCodes);
+		Serial.print("wait time before letter:");
+		Serial.print(words[w]);
+		Serial.print(" is ");
+		Serial.println(numUnitsWait[w]);
+		Serial.print("time to process letter:");
+		Serial.print(words[w]);
+		Serial.print(" is ");
+		Serial.println(numUnitsWithinLetter[w]);
 
-//		if (count==0 && first==true){
-//			// only do this for the first time: set accumulator to the start time
-//			first = false;
-//			accumulator = millis();
-//
-//			//testing
-//			Serial.println("Start");
-//			Serial.println(words[count]);
-//			Serial.println(letter);
-//			Serial.print("accumulator:");
-//			Serial.println(accumulator);
-//
-//			ledBlinking(accumulator,letter);
-//		}
-
-		// go to the next letter only after "the total time" used to process this letter
-		if(count==0){
-			if(millis() - accumulator >= (3+numUnits)*timeUnit){
-				accumulator += (3+numUnits)*timeUnit;
-				count = count + 1;
-				//testing results show the accumulator reading 
-				//...after processing the letter on round count (starting from 0)
-				letter = morseEncode(words[count]);
-				Serial.println(words[count]);
-				Serial.println(letter);
-				Serial.print("accumulator:");
-				Serial.println(accumulator);
-
-				ledBlinking(accumulator,letter);
-
-				Serial.println("End of testing this letter");
-				Serial.println();
-			}
-		}
-		else{
-			if(millis() - accumulator >= numUnits*timeUnit){
-				accumulator += numUnits*timeUnit;
-				count = count + 1;
-				//testing results show the accumulator reading 
-				//...after processing the letter on round count (starting from 0)
-				Serial.println(words[count]);
-				Serial.println(letter);
-				Serial.print("accumulator:");
-				Serial.println(accumulator);
-
-				ledBlinking(accumulator,letter);
-
-				Serial.println("End of testing this letter");
-				Serial.println();
-			}
-		}
+		w = w + 1;
 	}
+
+
+	// round initial value is 1
+	while (r < words.length()){
+		numUnitsStart[0] = numUnitsWait[0];
+		numUnitsStart[r] = numUnitsStart[r-1]+numUnitsWithinLetter[r-1]+numUnitsWait[r];
+		Serial.println(numUnitsStart[r]);
+		r = r + 1;
+	}
+
+
+	while (count < words.length()){
+
+		//blinking start time
+		unsigned long start = numUnitsStart[count]*timeUnit;
+		// wait for 3 units before start
+		if (count == 0){
+			start = 3*timeUnit;
+		}
+
+		// no need to change accumulator, because numUnitsStart[count] is rolling
+		if(millis() - accumulator >= numUnitsStart[count]*timeUnit){
+			String letter = morseEncode(words[count]);
+			
+			//test
+			Serial.println(words[count]);
+			Serial.print("Start of led blinking for '");
+			Serial.print(letter);
+			Serial.println("':");
+			Serial.print("Start time: ");
+			Serial.println(start);
+			
+			if(words[count]!=' '){
+				ledBlinking(start,letter);
+			}
+			count = count + 1;
+		}
+	}	 
 }
+
+/*Consider: How long does this letter take in total? 
+ * Total = 
+ * wait time between letters, 
+ *           which is numUnits = 3 or 7 
+ *   (*****this is the time to start led blinking****)
+ * + wait time between codes of this letter, 
+ *           which is 1 unit*(letter.length()-1)
+ * + time to process dash and dot, 
+ *           which is 1 unit * number of dots + 3 units * number of dashes
+ * 
+ *           
+ * Therefore, do step1 & step2.
+ */
+
 
 //According to the MorseCodeTable, morse codes for any letter are not longer than 6 chars
 //This array stores the correspondent time length of led HIGH for each morse code '.' or '-'

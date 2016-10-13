@@ -1,6 +1,8 @@
 package studio5;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -18,6 +20,9 @@ public class javaHexTX {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+
+		System.out.println(inputVal);
+
 		while (inputVal.length()>1){
 			System.out.println("You have entered more than 1 characters. "
 					+ "Please only enter one character at a time.");	
@@ -28,11 +33,11 @@ public class javaHexTX {
 				e.printStackTrace();
 			}
 		}
-		
+
 		// https://docs.oracle.com/javase/7/docs/api/java/lang/String.html#charAt(int)
 		int myVar=inputVal.charAt(0);
-		//System.out.println(myVar);
-		
+		System.out.println(myVar);
+
 		while (myVar < 48 || (myVar > 57 && myVar < 65) 
 				|| (myVar > 90 && myVar < 97) || myVar > 122){
 			System.out.println("What you entered is not a number or letter. "
@@ -43,22 +48,23 @@ public class javaHexTX {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
 			myVar=inputVal.charAt(1);
 		}
-		
-		System.out.print(inputVal);
-		
+
+
 		// 6.2
 		SerialComm port = new SerialComm(); 
 		try {
 			port.connect("/dev/cu.usbserial-DN01JD4W");
-			OutputStream out = port.getOutputStream();
+			DataOutputStream out = new DataOutputStream(new BufferedOutputStream(port.getOutputStream()));
+			out.write(myVar);
+			out.flush();
+
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 	}
 
 }

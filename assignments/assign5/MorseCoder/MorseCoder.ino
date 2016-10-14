@@ -2,7 +2,7 @@
 
 const int led = 13;
 //int timeUnit = 1000;//testing
-int timeUnit = 300;
+int timeUnit = 500;
 unsigned long accumulator = 0;
 int count = 0;
 //bool first = true;
@@ -40,10 +40,13 @@ void setup() {
 String words = "";
 int numDot = 0;
 int numDash = 0;
-int numUnitsWait[25] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-int numUnitsWithinLetter[25] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-int numUnitsStart[25] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-
+//unsigned long numUnitsWait[25] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+//unsigned long numUnitsWithinLetter[25] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+//unsigned long numUnitsStart[25] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+unsigned long numUnitsWait[50];
+unsigned long numUnitsWithinLetter[50];
+unsigned long numUnitsStart[50];
+bool first = true;
 void convertIncomingCharsToMorseCode() {
 	// TODO
 	while(Serial.available() > 0){
@@ -51,7 +54,10 @@ void convertIncomingCharsToMorseCode() {
 		words = words + toUpper(ch);
 		
 		//set the initial start time, only do it for the first input
+		if(Serial.available() == 0 && first == true){
 		accumulator = millis();
+		first = false;
+		}
 	}
 	//Serial.println(words);
 

@@ -16,7 +16,7 @@ public class ViewOutputStream extends FilterOutputStream {
     
 	public ViewOutputStream(OutputStream out) {
 		super(out);
-        JFrame f = new JFrame("ViewInputStream");
+        JFrame f = new JFrame("ViewOutputStream");
 		f.setBounds(100,100,225,300);
         psp = new PrintStreamPanel();
 		f.getContentPane().add(psp);
@@ -29,7 +29,9 @@ public class ViewOutputStream extends FilterOutputStream {
 	    // Send the Hex values corresponding to i (the parameter) 
 	    // to be displayed in the panel and also send it to the parent 
 	    // class so it can do its "write"
-		
+		String hexString = Integer.toHexString(i);
+		ps.println(hexString);
+		super.write(i);
 	}
 
 }

@@ -1,5 +1,5 @@
 const int BUTTON_PIN = 3;
-const int LED_PIN = 8;
+const int LED_PIN = 13;
 int sensorValue1 = 1;
 int sensorValue2 = 1;
 int count = 0;
@@ -28,7 +28,7 @@ void loop() {
 			digitalWrite(LED_PIN,LOW); 
 		}
 
-		if (sensorValue1 == 0 && sensorValue2 == 0){
+		if (sensorValue1 == 0 && sensorValue2 == 1){
 			countPush = countPush + 1;
 			Serial.println(countPush);
 		}
@@ -48,6 +48,6 @@ void loop() {
 			Serial.println(countPush);
 		}
 	}
-
+	
 	count = count + 1;// record number of times the loop runs
 }

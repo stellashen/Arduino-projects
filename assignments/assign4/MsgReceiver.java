@@ -20,7 +20,7 @@ public class MsgReceiver {
 	//FSM: each state represents different data types; 
 	//an idle state for waiting for the magic number
 
-	public enum State { idle,up0,up1,up2,up3,up4,up5,up6 }
+	public enum State { idle,up0,up1,up2,up3,up4,up5,up6 };
 	State counterState = State.idle;
 	State nextState(State state) throws IOException {
 		DataInputStream d = new DataInputStream(vis);

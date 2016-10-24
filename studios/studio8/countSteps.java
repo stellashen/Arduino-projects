@@ -24,12 +24,12 @@ public class countSteps {
 		String[] yVal = new String[695];
 		String[] zVal = new String[695];
 		int i = 0;
-		//		int y = 0;
-		//		int sumY = 0;
 
 		// read and print x, y, z values
 		try {
-			while(br.readLine( ) != null) 
+			// cannot use readLine() here because this line will disappear after being read
+			//			while(br.readLine( ) != null) 
+			while(br.ready())
 			{
 				data = br.readLine( );
 				parts = data.split(",");
@@ -40,29 +40,23 @@ public class countSteps {
 				System.out.print("y:"+parts[1]+" ");
 				System.out.print("z:"+parts[2]);
 				System.out.println();
-
-				//				y = Integer.parseInt(yVal[i]);
-				//				sumY = sumY + y;
+				//				System.out.println(data);
 
 				i = i + 1;
-
-				// use break to avoid exception
-				if (br.readLine()==null){
-					break;
-				}
+				//				System.out.println("i is "+i);
 			}
+			System.out.println("i is "+i);
 
+			// calculate the mean of y values
 			float y = 0;
 			float sumY = 0;
-			// calculate the mean of y values
-			for (int j = 0; j < yVal.length; j++){
-//				y = Float.parseFloat(yVal[j]);
+			for (int j = 0; j < 100; j++){
+				//				y = Float.parseFloat(yVal[j]);
 				y = Float.valueOf(yVal[j]);
 				sumY = sumY + y;
 			}
 			float avgY = sumY/yVal.length;
 			System.out.println("average y value is: "+avgY);
-
 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

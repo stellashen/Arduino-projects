@@ -80,26 +80,33 @@ void loop ()
 	debounceDe();
 
 	// numChar needs to take a value between 0 and 127
-	if(numChar >= 0 && numChar <= 127){
-		numColumnsOn = 0; // reset to 0 during every iteration
-		for (int i = 0; i < 5; i++){
-			columnVal = font_5x7[numChar][i];
-			if (columnVal != 0){
-				columnsOn[numColumnsOn] = i;
-				numColumnsOn = numColumnsOn + 1;
-			}
-			for (int j = 0; j < 7; j++){
-				led[i][j] =  (columnVal >> (7-j) ) & 1; 
-				// returns 0 or 1
-				// the most important bit is set to row 0
-				// the least important bit is an extra useless bit
-			}
-		}
+	if (numChar < 0){
+		numChar = 95;
+	}
+	if (numChar > 95){
+		numChar = 0;
+	}
+	
 
-		if(numColumnsOn!=0){
-			ledDisplay();
+	numColumnsOn = 0; // reset to 0 during every iteration
+	for (int i = 0; i < 5; i++){
+		columnVal = font_5x7[numChar][i];
+		if (columnVal != 0){
+			columnsOn[numColumnsOn] = i;
+			numColumnsOn = numColumnsOn + 1;
+		}
+		for (int j = 0; j < 7; j++){
+			led[i][j] =  (columnVal >> (7-j) ) & 1; 
+			// returns 0 or 1
+			// the most important bit is set to row 0
+			// the least important bit is an extra useless bit
 		}
 	}
+
+	if(numColumnsOn!=0){
+		ledDisplay();
+	}
+
 }
 
 void debounceIn(){
@@ -163,6 +170,14 @@ void debounceDe(){
 int k = 0;//k: count the number of columns displayed (starting from 0)
 //each column will display in turn
 void ledDisplay(){	
+	// all leds off
+	for(int i = 0; i < 7; i++){
+		digitalWrite(row[i],LOW);
+	}
+	for(int i = 0; i < 5; i++){
+		digitalWrite(col[i],HIGH);
+	}
+
 	// set ONE column at display to LOW
 	columnsDisplay();
 

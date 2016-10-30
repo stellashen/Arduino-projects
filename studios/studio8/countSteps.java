@@ -10,6 +10,8 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
+// y is pointing downward
+
 public class countSteps {
 
 	public static void main(String[] args) throws FileNotFoundException {
@@ -68,6 +70,8 @@ public class countSteps {
 				}
 			}
 			System.out.println("The number of peaks is: "+peak);
+			// one problem: if the person is walking in a different pattern, the y values can be very different.
+			// Therefore, it's better to calculate running average.
 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

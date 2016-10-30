@@ -48,15 +48,26 @@ public class countSteps {
 			System.out.println("i is "+i);
 
 			// calculate the mean of y values
-			float y = 0;
+			float[] y = new float[695];
 			float sumY = 0;
-			for (int j = 0; j < 100; j++){
+			for (int j = 0; j < 695; j++){
 				//				y = Float.parseFloat(yVal[j]);
-				y = Float.valueOf(yVal[j]);
-				sumY = sumY + y;
+				y[j] = Float.valueOf(yVal[j]);
+				sumY = sumY + y[j];
 			}
 			float avgY = sumY/yVal.length;
 			System.out.println("average y value is: "+avgY);
+
+			//count the number of peaks
+			int peak = 0;
+			for (int k = 1; k < 694; k++){
+				if (y[k] > y[k-1] && y[k] > y[k+1]){
+					if (y[k-1]>1.22 && y[k+1]>1.22){
+						peak = peak + 1;
+					}
+				}
+			}
+			System.out.println("The number of peaks is: "+peak);
 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

@@ -1,3 +1,14 @@
+/* receiver
+ *  
+ *  CSE 132 - Assignment 8
+ *  
+ *  Fill this out so we know whose assignment this is.
+ *  
+ *  Name: Yangchen Shen
+ *  WUSTL Key: sheny
+ *  
+ */
+
 package assign8;
 
 public class DataReceiver {

@@ -11,10 +11,140 @@
 
 package assign8;
 
+import studio4.SerialComm;
+import studio4.ViewInputStream;
+import java.io.*;
+
 public class DataReceiver {
 
+	final private ViewInputStream vis;
+	private int header,key;
+
+	public DataReceiver(InputStream in) {
+		vis = new ViewInputStream(in);
+	}
+
+	//FSM: each state represents different data types; 
+	//an idle state for waiting for the magic number
+
+	public enum State { idle,up0,up1,up2,up3,up4,up5};
+	State counterState = State.idle;
+	State nextState(State state) throws IOException {
+		DataInputStream d = new DataInputStream(vis);
+		switch (state){
+		case idle:
+			header = d.read();//read the next byte
+			if (header==0x23){ 
+				key = d.read();
+				if (key==0x30){
+					state = State.up0;
+				}
+				else if (key==0x31){
+					state = State.up1;
+				}
+				else if (key==0x32){
+					state = State.up2;
+				}
+				else if (key==0x33){
+					state = State.up3;
+				}
+				else if (key==0x34){
+					state = State.up4;
+				}
+				else if (key==0x35){
+					state = State.up5;
+				}
+				else {
+					state = State.idle;
+				}
+			}
+			else {
+				state = State.idle;
+			}
+			break;
+
+		case up0:
+			System.out.print("debugging string:");
+			String debugMessage = d.readUTF();
+			System.out.println(debugMessage);
+			state = State.idle;
+			break;
+
+		case up1:
+			System.out.print("error string:");
+			String errorMessage = d.readUTF();
+			System.out.println(errorMessage);
+			state = State.idle;
+			break;
+			
+		case up2:
+			System.out.print("filtered temperature reading:");
+			float temp2 = d.readFloat();
+			System.out.println(temp2);
+			state = State.idle;
+			break;
+
+		case up3:
+			System.out.print("step counts:");
+			int step = d.readShort();
+			System.out.println(step);
+			state = State.idle;
+			break;
+
+		case up4:
+			System.out.print("time spent asleep:");
+			int sleep = d.readInt();
+			System.out.println(sleep);
+			state = State.idle;
+			break;
+			
+		case up5:
+			System.out.print("timestamp:");
+			int t = d.readInt();
+			System.out.println(t);
+			state = State.idle;
+			break;
+		}
+		return state;
+	}
+
+	public void run() {
+		// insert code here
+		// read from vis and write to console
+
+		try
+		{
+			while(true){
+				if (vis.available()>0){
+					//								int numBytes = vis.available();
+					//								System.out.println(numBytes+" bytes can be read from this port.");
+					counterState = nextState(counterState);
+				}
+			}
+		}
+
+		catch ( Exception e )
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}	
+	}
+	
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
+		try
+		{        	
+			SerialComm s = new SerialComm();
+			s.connect("/dev/cu.usbserial-DN01JD4W"); // Adjust this to be the right port for your machine
+			InputStream in = s.getInputStream();
+			DataReceiver msgr = new DataReceiver(in);
+			msgr.run();
+
+		}
+		catch ( Exception e )
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 	}
 

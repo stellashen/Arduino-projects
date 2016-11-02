@@ -19,7 +19,7 @@ const int ledPin = 13;//led on: step counting mode (pedometer); led off: sleep t
 const int tempPin = A0; // temperature sensor
 
 //accelerometer (orientation is down with y pointing down when used as pedometer)
-bool ledOn = true;
+bool ledOn = false;
 float fx;
 float fy;
 float fz;
@@ -188,9 +188,6 @@ void loop() {
 		}
 	}
 
-	checkModeButton();
-	checkResetStepCountButton();
-
 	if(millis() - accumulator2 > interval/FILTER_COUNTS) { 
 		accumulator2 += interval/FILTER_COUNTS; 
 		val = analogRead(tempPin);
@@ -200,13 +197,11 @@ void loop() {
 		count = count + 1;
 	}
 
-	timeStamp = millis();
-
 	//send messages from Arduino to Java once per second
-	if(timeStamp - accumulator > interval) { 
-		accumulator += interval;
-		send();
-	}
+	send();
+
+	checkModeButton();
+	checkResetStepCountButton();
 }
 
 void countingSteps(){
@@ -322,14 +317,15 @@ void checkModeButton(){
 
 		if (buttonState==0 && lastButtonState==1){
 			//button is really pushed once
-			ledOn = !ledOn; //change mode
 
-			if(ledOn==true){
-				startCountSteps = true; 
-			}
-			else{
+			if(ledOn){
+				ledOn = false; //change mode
 				startNew = true; 
 				sleepTime = 0; 
+			}
+			else{
+				ledOn = true; //change mode
+				startCountSteps = true; 
 			}
 
 			lastButtonState = buttonState;
@@ -364,6 +360,7 @@ void checkResetStepCountButton(){
 }
 
 void send(){
+	timeStamp = millis();
 	if(timeStamp - accumulator > interval) { 
 		accumulator += interval; 
 		//magic number: 0x23 - ASCII '#'
@@ -420,13 +417,13 @@ void send(){
 		Serial.write(t3);
 		Serial.write(timeStamp);
 
-		//0x31. error string if the temperature is less than 20
-		if (avg < 20){
+		//0x31. error string if the temperature is greater than 25
+		if (avg > 25){
 			Serial.write(0x23);
 			Serial.write(0x31);
 			Serial.write(0x00);
 			Serial.write(0x0A);
-			Serial.write("Low Temp!!");
+			Serial.write("High Temp!");
 		}
 	}
 }

@@ -24,20 +24,37 @@ float fx;
 float fy;
 float fz;
 float y[3] = {0,0,0};
-float sumx=0;
-float sumy=0;
-float sumz=0;
-int valCounts = 0;
-unsigned long accumulator3 = 0;
-float avgx = 0;
-float avgy = 0;
-float avgz = 0;
-
 int c;
 float previousY;
 float previousPreviousY;
 int peak;
 unsigned long lastPeakTime;
+bool startCountSteps = true;
+
+float sx[100];
+float sy[100];
+float sz[100];
+float sumx=0;
+float sumy=0;
+float sumz=0;
+int valCounts = 0;
+
+float avgx = 0;
+float avgy = 0;
+float avgz = 0;
+int peakX = 0;
+int peakY = 0;
+int peakZ = 0;
+int lastPeakX = 0;
+int lastPeakY = 0;
+int lastPeakZ = 0;
+
+int peakSumX = 0;
+int peakSumY = 0;
+int peakSumZ = 0;
+unsigned long accumulator3 = 0;
+bool startNew = true;
+unsigned long sleepTime = 0;
 
 //temperature sensor
 int val = 0;
@@ -88,11 +105,16 @@ void loop() {
 		fz = accel.cz;
 
 		if (ledOn){
+			//reset delta timing
+			if (startCountSteps){
+				lastPeakTime = millis();
+				startCountSteps = false;
+			}
+
 			y[c] = fy;
 			//Don't run when there is less than 3 values stored.
 			if (y[2]!=0){
 				// led on: counting steps		
-
 				digitalWrite(ledPin, HIGH);
 				//Compare three values (the current value and previous two values) every time,
 				// to see if the middle value is a peak.
@@ -104,27 +126,50 @@ void loop() {
 			}
 		}
 		// led off: sleep tracking
+		// check if there is no motion for every 500 iterations
 		else{
+			if(startNew){
+				//reset delta timing
+				accumulator3 = millis();
+				startNew = false;
+			}
+
+			//led off: sleep tracking mode
 			digitalWrite(ledPin, LOW);
 			sumx = sumx + fx;
 			sumy = sumy + fy;
 			sumz = sumz + fz;
-			valCounts = valCounts + 1;
-			// check if there is no motion every 5 seconds
-			if(millis() - accumulator3 > 5*interval) { 
-				accumulator3 += 5*interval; 
+			sx[valCounts] = fx;
+			sy[valCounts] = fy;
+			sz[valCounts] = fz;
+
+			if(valCounts == 99){
 				avgx = sumx/valCounts;
 				avgy = sumy/valCounts;
 				avgz = sumz/valCounts;
-				Serial.print(avgx);
-				Serial.print(",");
-				Serial.print(avgy);
-				Serial.print(",");
-				Serial.println(avgz);
-				Serial.println();
-			}
-		}
 
+				checkMotion();
+
+				//reset
+				valCounts = 0;
+				sumx = 0;
+				sumy = 0;
+				sumz = 0;
+				peakX = 0;
+				peakY = 0;
+				peakZ = 0;
+				lastPeakX = 0;
+				lastPeakY = 0;
+				lastPeakZ = 0;
+			}
+			else{
+				valCounts = valCounts + 1;
+			}
+
+		}
+		
+		checkModeButton();
+		checkResetStepCountButton();
 	}
 
 	if(millis() - accumulator2 > interval/FILTER_COUNTS) { 
@@ -212,10 +257,85 @@ void countingSteps(){
 			if (millis() - lastPeakTime > 500){
 				peak = peak + 1; // one peak is one step
 				lastPeakTime = millis();
-				Serial.println(peak);
-				Serial.println(lastPeakTime);
+				//				Serial.println(peak);
+				//				Serial.println(lastPeakTime);
 			}
 		}
 	}
 }
 
+void checkMotion(){
+	// count peaks during the past 100 iterations
+	for(int k = 1; k<= 98; k++){
+		if(sx[k]>avgx+0.2){
+			if(sx[k]>sx[k-1] & sx[k]>sx[k+1]){
+				// if two peaks are too close, don't count
+				if (k - lastPeakX > 10){
+					peakX = peakX + 1;
+					lastPeakX = k;
+					//					Serial.println("peakX");
+					//					Serial.println(peakX);
+				}
+			}
+		}
+		if(sy[k]>avgy+0.2){
+			if(sy[k]>sy[k-1] & sy[k]>sy[k+1]){
+				// if two peaks are too close, don't count
+				if (k - lastPeakY> 10){
+					peakY = peakY + 1;
+					lastPeakY = k;
+					//					Serial.println("peakY");
+					//					Serial.println(peakY);
+				}
+			}
+		}
+		if(sz[k]>avgz+0.2){
+			if(sz[k]>sz[k-1] & sz[k]>sz[k+1]){
+				// if two peaks are too close, don't count
+				if (k - lastPeakZ > 10){
+					peakZ = peakZ + 1;
+					lastPeakZ = k;
+					//					Serial.println("peakZ");
+					//					Serial.println(peakZ);
+				}
+			}
+		}
+	}
+
+	peakSumX = peakX + peakSumX;
+	peakSumY = peakY + peakSumY;
+	peakSumZ = peakZ + peakSumZ;
+
+	//What is no motion? Answer: peak sum for all axis < 10  in 10 seconds
+	if(millis() - accumulator3 > 10000) { 
+		accumulator3 += 10000; 
+		//		Serial.println(peakSumX);
+		//		Serial.println(peakSumY);
+		//		Serial.println(peakSumZ);
+		//		Serial.println();
+		
+		// if there are too much peaks -> there are too much motion 
+		// -> person is not asleep -> reset sleepTime to 0 
+		if(peakSumX > 10 || peakSumY > 10 || peakSumZ > 10){
+			sleepTime = 0;	
+		}
+		// if person is asleep, add 10 seconds
+		else{
+			sleepTime = sleepTime + 10000;
+//			Serial.println(sleepTime);
+		}
+		//reset sum to 0 for the next cycle
+		peakSumX = 0;
+		peakSumY = 0;
+		peakSumZ = 0;
+		startNew = true;
+	}
+}
+
+//button:startNew = true; sleepTime = 0; startCountSteps = true;
+void checkModeButton(){
+	
+}
+void checkResetStepCountButton(){
+	
+}

@@ -199,62 +199,10 @@ void loop() {
 		temps[count % FILTER_COUNTS] = temperature;
 		count = count + 1;
 	}
-	//
-	//	timeStamp = millis();
-	//
-	//	if(timeStamp - accumulator > interval) { 
-	//		accumulator += interval; 
-	//		//magic number: 0x23 - ASCII '#'
-	//		//0x30. debugging string
-	//		Serial.write(0x23);
-	//		Serial.write(0x30);
-	//		Serial.write(0x00);
-	//		Serial.write(0x04);
-	//		Serial.write("Test");
-	//
-	//		//0x32. filtered temp in Celsius: avg
-	//		for (int i = 0; i < FILTER_COUNTS; i++){
-	//			sum = sum + temps[i];
-	//		}
-	//		avg = sum/FILTER_COUNTS;
-	//		sum = 0;
-	//		count = 0;
-	//		rawBits = *(unsigned long *) & avg; 
-	//		Serial.write(0x23);
-	//		Serial.write(0x32);
-	//		r1=rawBits>>24;
-	//		r2=rawBits>>16;
-	//		r3=rawBits>>8;
-	//		Serial.write(r1);
-	//		Serial.write(r2);
-	//		Serial.write(r3);
-	//		Serial.write(rawBits);
-	//
-	//		//0x33. step counts
-	//
-	//		//0x34. time spent asleep
-	//
-	//		//0x35. timestamp: timeStamp
-	//		Serial.write(0x23);
-	//		Serial.write(0x35);
-	//		t1 = timeStamp >> 24;
-	//		t2 = timeStamp >> 16;
-	//		t3 = timeStamp >> 8;
-	//		Serial.write(t1);
-	//		Serial.write(t2);
-	//		Serial.write(t3);
-	//		Serial.write(timeStamp);
-	//
-	//		//0x31. error string if the temperature is over 26
-	//		if (avg > 26){
-	//			Serial.write(0x23);
-	//			Serial.write(0x31);
-	//			Serial.write(0x00);
-	//			Serial.write(0x0A);
-	//			Serial.write("High Temp!");
-	//		}
-	//
-	//	}
+
+	timeStamp = millis();
+
+	send();
 }
 
 void countingSteps(){
@@ -385,27 +333,93 @@ void checkModeButton(){
 
 		lastReading = reading;
 	}
+}
 
-	void checkResetStepCountButton(){
-		reading2 = digitalRead(resetPin);
+void checkResetStepCountButton(){
+	reading2 = digitalRead(resetPin);
 
-		// If the switch changed, due to noise or pressing:
-		if (reading2 != lastReading2) {
-			// reset the debouncing timer
-			lastDebounceTime2 = millis();
-		}
-
-		// if wait long enough, take the reading as the real button state
-		if (millis() - lastDebounceTime2 > debounceDelay) {
-			buttonState2 = reading2;
-
-			if (buttonState2==0 && lastButtonState2==1){
-				peak = 0; // reset step counts to 0
-				startCountSteps = true; 
-			}
-
-			lastButtonState2 = buttonState2;
-		}
-
-		lastReading2 = reading2;
+	// If the switch changed, due to noise or pressing:
+	if (reading2 != lastReading2) {
+		// reset the debouncing timer
+		lastDebounceTime2 = millis();
 	}
+
+	// if wait long enough, take the reading as the real button state
+	if (millis() - lastDebounceTime2 > debounceDelay) {
+		buttonState2 = reading2;
+
+		if (buttonState2==0 && lastButtonState2==1){
+			peak = 0; // reset step counts to 0
+			startCountSteps = true; 
+		}
+
+		lastButtonState2 = buttonState2;
+	}
+
+	lastReading2 = reading2;
+}
+
+void send(){
+	if(timeStamp - accumulator > interval) { 
+		accumulator += interval; 
+		//magic number: 0x23 - ASCII '#'
+		//0x30. debugging string
+		Serial.write(0x23);
+		Serial.write(0x30);
+		Serial.write(0x00);
+		Serial.write(0x04);
+		Serial.write("Test");
+
+		//0x32. filtered temp in Celsius: avg
+		for (int i = 0; i < FILTER_COUNTS; i++){
+			sum = sum + temps[i];
+		}
+		avg = sum/FILTER_COUNTS;
+		sum = 0;
+		count = 0;
+		rawBits = *(unsigned long *) & avg; 
+		Serial.write(0x23);
+		Serial.write(0x32);
+		r1=rawBits>>24;
+		r2=rawBits>>16;
+		r3=rawBits>>8;
+		Serial.write(r1);
+		Serial.write(r2);
+		Serial.write(r3);
+		Serial.write(rawBits);
+
+		//0x33. step counts
+		Serial.write(0x23);
+		Serial.write(0x33);
+		Serial.write(peak>>8);
+		Serial.write(peak);
+
+		//0x34. time spent asleep
+		Serial.write(0x23);
+		Serial.write(0x33);
+		Serial.write(timeSleep>>24);
+		Serial.write(timeSleep>>16);
+		Serial.write(timeSleep>>8);
+		Serial.write(timeSleep);
+
+		//0x35. timestamp: timeStamp
+		Serial.write(0x23);
+		Serial.write(0x35);
+		t1 = timeStamp >> 24;
+		t2 = timeStamp >> 16;
+		t3 = timeStamp >> 8;
+		Serial.write(t1);
+		Serial.write(t2);
+		Serial.write(t3);
+		Serial.write(timeStamp);
+
+		//0x31. error string if the temperature is less than 20
+		if (avg < 20){
+			Serial.write(0x23);
+			Serial.write(0x31);
+			Serial.write(0x00);
+			Serial.write(0x0A);
+			Serial.write("Low Temp!!");
+		}
+	}
+}

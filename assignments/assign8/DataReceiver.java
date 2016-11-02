@@ -64,6 +64,7 @@ public class DataReceiver {
 			break;
 
 		case up0:
+			System.out.println();
 			System.out.print("debugging string:");
 			String debugMessage = d.readUTF();
 			System.out.println(debugMessage);

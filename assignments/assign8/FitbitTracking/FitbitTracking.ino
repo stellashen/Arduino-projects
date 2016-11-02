@@ -186,10 +186,10 @@ void loop() {
 			}
 
 		}
-
-		checkModeButton();
-		checkResetStepCountButton();
 	}
+
+	checkModeButton();
+	checkResetStepCountButton();
 
 	if(millis() - accumulator2 > interval/FILTER_COUNTS) { 
 		accumulator2 += interval/FILTER_COUNTS; 
@@ -202,7 +202,11 @@ void loop() {
 
 	timeStamp = millis();
 
-	send();
+	//send messages from Arduino to Java once per second
+	if(timeStamp - accumulator > interval) { 
+		accumulator += interval;
+		send();
+	}
 }
 
 void countingSteps(){
@@ -404,7 +408,7 @@ void send(){
 			Serial.write(sleepTime>>8);
 			Serial.write(sleepTime);
 		}
-		
+
 		//0x35. timestamp: timeStamp
 		Serial.write(0x23);
 		Serial.write(0x35);

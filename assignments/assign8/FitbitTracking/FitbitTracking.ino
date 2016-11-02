@@ -19,7 +19,7 @@ const int ledPin = 13;//led on: step counting mode (pedometer); led off: sleep t
 const int tempPin = A0; // temperature sensor
 
 //accelerometer (orientation is down with y pointing down when used as pedometer)
-bool ledOn = false;
+bool ledOn = true;
 float fx;
 float fy;
 float fz;
@@ -27,7 +27,7 @@ float y[3] = {0,0,0};
 int c;
 float previousY;
 float previousPreviousY;
-int peak;
+int peak;  // peak  = step counts
 unsigned long lastPeakTime;
 bool startCountSteps = true;
 
@@ -76,6 +76,25 @@ unsigned long accumulator = 0;
 unsigned long accumulator2 = 0;
 const int interval = 1000;//1 hz is 1 sec
 
+//debounce for mode button
+int buttonState = 1;             // the current button state
+int lastButtonState = 1;   // the previous button state
+
+int reading = 1;           // input reading: 0 when pushed, 1 when not
+int lastReading = 1;
+
+unsigned long lastDebounceTime = 0;  // the last time the output pin was toggled
+unsigned long debounceDelay = 50;    // the debounce time; increase if the output flickers
+
+//debounce for reset button
+int buttonState2 = 1;             // the current button state
+int lastButtonState2 = 1;   // the previous button state
+
+int reading2 = 1;           // input reading: 0 when pushed, 1 when not
+int lastReading2 = 1;
+
+unsigned long lastDebounceTime2 = 0;  // the last time the output pin was toggled
+
 //rawbits
 unsigned long rawBits; 
 int r1=0;
@@ -85,13 +104,13 @@ int r3=0;
 void setup() {
 	Serial.begin(9600);
 	accel.init();
-	//	// buttons
-	//	pinMode(modePin, INPUT_PULLUP);
-	//	pinMode(resetPin, INPUT_PULLUP);
-	//	// temperature sensor set to 5V
-	//	analogReference(DEFAULT);
-	//	// led
-	//	pinMode(ledPin, OUTPUT);
+	// buttons
+	pinMode(modePin, INPUT_PULLUP);
+	pinMode(resetPin, INPUT_PULLUP);
+	// temperature sensor set to 5V
+	analogReference(DEFAULT);
+	// led
+	pinMode(ledPin, OUTPUT);
 }
 
 void loop() {
@@ -167,7 +186,7 @@ void loop() {
 			}
 
 		}
-		
+
 		checkModeButton();
 		checkResetStepCountButton();
 	}
@@ -313,7 +332,7 @@ void checkMotion(){
 		//		Serial.println(peakSumY);
 		//		Serial.println(peakSumZ);
 		//		Serial.println();
-		
+
 		// if there are too much peaks -> there are too much motion 
 		// -> person is not asleep -> reset sleepTime to 0 
 		if(peakSumX > 10 || peakSumY > 10 || peakSumZ > 10){
@@ -322,7 +341,7 @@ void checkMotion(){
 		// if person is asleep, add 10 seconds
 		else{
 			sleepTime = sleepTime + 10000;
-//			Serial.println(sleepTime);
+			//			Serial.println(sleepTime);
 		}
 		//reset sum to 0 for the next cycle
 		peakSumX = 0;
@@ -332,10 +351,61 @@ void checkMotion(){
 	}
 }
 
-//button:startNew = true; sleepTime = 0; startCountSteps = true;
 void checkModeButton(){
-	
-}
-void checkResetStepCountButton(){
-	
-}
+	reading = digitalRead(modePin);
+
+	// check to see if you just pressed the button
+	// (i.e. the input went from LOW to HIGH),  and you've waited
+	// long enough since the last press to ignore any noise:
+
+	// If the switch changed, due to noise or pressing:
+	if (reading != lastReading) {
+		// reset the debouncing timer
+		lastDebounceTime = millis();
+	}
+
+	// if wait long enough, take the reading as the real button state
+	if (millis() - lastDebounceTime > debounceDelay) {
+		buttonState = reading;
+
+		if (buttonState==0 && lastButtonState==1){
+			//button is really pushed once
+			ledOn = !ledOn; //change mode
+
+			if(ledOn==true){
+				startCountSteps = true; 
+			}
+			else{
+				startNew = true; 
+				sleepTime = 0; 
+			}
+
+			lastButtonState = buttonState;
+		}
+
+		lastReading = reading;
+	}
+
+	void checkResetStepCountButton(){
+		reading2 = digitalRead(resetPin);
+
+		// If the switch changed, due to noise or pressing:
+		if (reading2 != lastReading2) {
+			// reset the debouncing timer
+			lastDebounceTime2 = millis();
+		}
+
+		// if wait long enough, take the reading as the real button state
+		if (millis() - lastDebounceTime2 > debounceDelay) {
+			buttonState2 = reading2;
+
+			if (buttonState2==0 && lastButtonState2==1){
+				peak = 0; // reset step counts to 0
+				startCountSteps = true; 
+			}
+
+			lastButtonState2 = buttonState2;
+		}
+
+		lastReading2 = reading2;
+	}

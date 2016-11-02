@@ -13,13 +13,13 @@
 #include <SparkFun_MMA8452Q.h> // Includes the SFE_MMA8452Q library
 MMA8452Q accel;
 
-const int modePin = 8; // mode button: change between steps counting mode and sleep tracking mode
+const int modePin = 6; // mode button: change between steps counting mode and sleep tracking mode
 const int resetPin = 7; // reset button: reset steps
 const int ledPin = 13;//led on: step counting mode (pedometer); led off: sleep tracking mode
 const int tempPin = A0; // temperature sensor
 
 //accelerometer (orientation is down with y pointing down when used as pedometer)
-bool ledOn = false;
+bool ledOn = true;
 float fx;
 float fy;
 float fz;
@@ -115,6 +115,15 @@ void setup() {
 
 void loop() {
 
+	if(millis() - accumulator2 > interval/FILTER_COUNTS) { 
+		accumulator2 += interval/FILTER_COUNTS; 
+		val = analogRead(tempPin);
+		voltage = val*5/1023.0;
+		temperature = 100*voltage - 50;
+		temps[count % FILTER_COUNTS] = temperature;
+		count = count + 1;
+	}
+
 	if (accel.available())
 	{
 		// First, use accel.read() to read the new variables:
@@ -123,7 +132,7 @@ void loop() {
 		fy = accel.cy;
 		fz = accel.cz;
 
-		if (ledOn){
+		if (ledOn == true){
 			//reset delta timing
 			if (startCountSteps){
 				lastPeakTime = millis();
@@ -184,17 +193,7 @@ void loop() {
 			else{
 				valCounts = valCounts + 1;
 			}
-
 		}
-	}
-
-	if(millis() - accumulator2 > interval/FILTER_COUNTS) { 
-		accumulator2 += interval/FILTER_COUNTS; 
-		val = analogRead(tempPin);
-		voltage = val*5/1023.0;
-		temperature = 100*voltage - 50;
-		temps[count % FILTER_COUNTS] = temperature;
-		count = count + 1;
 	}
 
 	//send messages from Arduino to Java once per second
@@ -317,8 +316,9 @@ void checkModeButton(){
 
 		if (buttonState==0 && lastButtonState==1){
 			//button is really pushed once
+			//Serial.println(1);
 
-			if(ledOn){
+			if(ledOn==true){
 				ledOn = false; //change mode
 				startNew = true; 
 				sleepTime = 0; 
@@ -327,12 +327,10 @@ void checkModeButton(){
 				ledOn = true; //change mode
 				startCountSteps = true; 
 			}
-
-			lastButtonState = buttonState;
 		}
-
-		lastReading = reading;
+		lastButtonState = buttonState;
 	}
+	lastReading = reading;
 }
 
 void checkResetStepCountButton(){
@@ -349,10 +347,11 @@ void checkResetStepCountButton(){
 		buttonState2 = reading2;
 
 		if (buttonState2==0 && lastButtonState2==1){
+			//Serial.println(2);
 			peak = 0; // reset step counts to 0
 			startCountSteps = true; 
 		}
-
+		
 		lastButtonState2 = buttonState2;
 	}
 
@@ -389,7 +388,7 @@ void send(){
 		Serial.write(r3);
 		Serial.write(rawBits);
 
-		if(ledOn){
+		if (ledOn==true){
 			//0x33. step counts
 			Serial.write(0x23);
 			Serial.write(0x33);

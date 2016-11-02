@@ -15,13 +15,24 @@ MMA8452Q accel;
 
 const int modePin = 8; // mode button: change between steps counting mode and sleep tracking mode
 const int resetPin = 7; // reset button: reset steps
-const int ledPin = 13;//led on: step counting mode; led off: sleep tracking mode
+const int ledPin = 13;//led on: step counting mode (pedometer); led off: sleep tracking mode
 const int tempPin = A0; // temperature sensor
 
-//accelerometer
-float fx[3];
-float fy[3] = {0,0,0};
-float fz[3];
+//accelerometer (orientation is down with y pointing down when used as pedometer)
+bool ledOn = false;
+float fx;
+float fy;
+float fz;
+float y[3] = {0,0,0};
+float sumx=0;
+float sumy=0;
+float sumz=0;
+int valCounts = 0;
+unsigned long accumulator3 = 0;
+float avgx = 0;
+float avgy = 0;
+float avgz = 0;
+
 int c;
 float previousY;
 float previousPreviousY;
@@ -67,58 +78,63 @@ void setup() {
 }
 
 void loop() {
+
 	if (accel.available())
 	{
 		// First, use accel.read() to read the new variables:
 		accel.read();
-		fx[c] = accel.cx; 
-		fy[c] = accel.cy;
-		fz[c] = accel.cz;
+		fx = accel.cx; 
+		fy = accel.cy;
+		fz = accel.cz;
 
-		// Alternative (more precise): see if there is a peak in every 50 values
-		
-		//compare three values (the current value and previous two values) every time
-		//don't run when there is less than 3 values stored
-		if (fy[2]!=0){
-			if(c == 2){
-				previousY = fy[1]; 
-				previousPreviousY = fy[0];
+		if (ledOn){
+			y[c] = fy;
+			//Don't run when there is less than 3 values stored.
+			if (y[2]!=0){
+				// led on: counting steps		
+
+				digitalWrite(ledPin, HIGH);
+				//Compare three values (the current value and previous two values) every time,
+				// to see if the middle value is a peak.
+				countingSteps();
 			}
-			if(c == 1){
-				previousY = fy[0]; 
-				previousPreviousY = fy[2];
-			}
-			if(c == 0){
-				previousY = fy[2]; 
-				previousPreviousY = fy[1];
-			}
-			if (previousY > previousPreviousY && previousY > fy[c]){
-				if(previousY > 1.1){
-					if (millis() - lastPeakTime > 500){
-						peak = peak + 1;
-						lastPeakTime = millis();
-						Serial.println(peak);
-						Serial.println(lastPeakTime);
-					}
-				}
+			c = c + 1;
+			if (c>2){
+				c=0;
 			}
 		}
-
-		c = c + 1;
-		if (c>2){
-			c=0;
+		// led off: sleep tracking
+		else{
+			digitalWrite(ledPin, LOW);
+			sumx = sumx + fx;
+			sumy = sumy + fy;
+			sumz = sumz + fz;
+			valCounts = valCounts + 1;
+			// check if there is no motion every 5 seconds
+			if(millis() - accumulator3 > 5*interval) { 
+				accumulator3 += 5*interval; 
+				avgx = sumx/valCounts;
+				avgy = sumy/valCounts;
+				avgz = sumz/valCounts;
+				Serial.print(avgx);
+				Serial.print(",");
+				Serial.print(avgy);
+				Serial.print(",");
+				Serial.println(avgz);
+				Serial.println();
+			}
 		}
 
 	}
 
-	//	if(millis() - accumulator2 > interval/FILTER_COUNTS) { 
-	//		accumulator2 += interval/FILTER_COUNTS; 
-	//		val = analogRead(tempPin);
-	//		voltage = val*5/1023.0;
-	//		temperature = 100*voltage - 50;
-	//		temps[count % FILTER_COUNTS] = temperature;
-	//		count = count + 1;
-	//	}
+	if(millis() - accumulator2 > interval/FILTER_COUNTS) { 
+		accumulator2 += interval/FILTER_COUNTS; 
+		val = analogRead(tempPin);
+		voltage = val*5/1023.0;
+		temperature = 100*voltage - 50;
+		temps[count % FILTER_COUNTS] = temperature;
+		count = count + 1;
+	}
 	//
 	//	timeStamp = millis();
 	//
@@ -176,3 +192,30 @@ void loop() {
 	//
 	//	}
 }
+
+void countingSteps(){
+	if(c == 2){
+		previousY = y[1]; 
+		previousPreviousY = y[0];
+	}
+	if(c == 1){
+		previousY = y[0]; 
+		previousPreviousY = y[2];
+	}
+	if(c == 0){
+		previousY = y[2]; 
+		previousPreviousY = y[1];
+	}
+	if (previousY > previousPreviousY && previousY > y[c]){
+		if(previousY > 1.1){
+			// if two peaks are too close, don't count
+			if (millis() - lastPeakTime > 500){
+				peak = peak + 1; // one peak is one step
+				lastPeakTime = millis();
+				Serial.println(peak);
+				Serial.println(lastPeakTime);
+			}
+		}
+	}
+}
+

@@ -62,16 +62,22 @@ public class countSteps {
 
 			//count the number of peaks
 			int peak = 0;
+			int lastPeakTime = 0;
 			for (int k = 1; k < 694; k++){
 				if (y[k] > y[k-1] && y[k] > y[k+1]){
-					if (y[k-1]>1.22 && y[k+1]>1.22){
-						peak = peak + 1;
+					if(y[k]>1.1){
+//					if (y[k-1]>avgY && y[k+1]>avgY){
+						if (k - lastPeakTime > 9){
+							peak = peak + 1;
+						}
+						lastPeakTime = k;
 					}
 				}
 			}
 			System.out.println("The number of peaks is: "+peak);
 			// one problem: if the person is walking in a different pattern, the y values can be very different.
 			// Therefore, it's better to calculate running average.
+			// Alternative：compare k to lastPeakTime, and ignore those that are too close
 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

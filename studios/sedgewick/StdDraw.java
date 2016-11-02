@@ -1,3 +1,4 @@
+package sedgewick;
 /******************************************************************************
  *  Compilation:  javac StdDraw.java
  *  Execution:    java StdDraw

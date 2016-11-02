@@ -388,20 +388,23 @@ void send(){
 		Serial.write(r3);
 		Serial.write(rawBits);
 
-		//0x33. step counts
-		Serial.write(0x23);
-		Serial.write(0x33);
-		Serial.write(peak>>8);
-		Serial.write(peak);
-
-		//0x34. time spent asleep
-		Serial.write(0x23);
-		Serial.write(0x33);
-		Serial.write(timeSleep>>24);
-		Serial.write(timeSleep>>16);
-		Serial.write(timeSleep>>8);
-		Serial.write(timeSleep);
-
+		if(ledOn){
+			//0x33. step counts
+			Serial.write(0x23);
+			Serial.write(0x33);
+			Serial.write(peak>>8);
+			Serial.write(peak);
+		}
+		else{
+			//0x34. time spent asleep
+			Serial.write(0x23);
+			Serial.write(0x34);
+			Serial.write(sleepTime>>24);
+			Serial.write(sleepTime>>16);
+			Serial.write(sleepTime>>8);
+			Serial.write(sleepTime);
+		}
+		
 		//0x35. timestamp: timeStamp
 		Serial.write(0x23);
 		Serial.write(0x35);

@@ -259,6 +259,12 @@ public class FitbitPlot {
 
 			stepPrevious = step;
 		}
+		else{
+			//clear previous labels
+			for(int i = 0; i<limit; i++){
+				isPeak[i] = 0;
+			}
+		}
 
 		//***draw text indicators
 		indicators();

@@ -226,6 +226,8 @@ public class FitbitPlot {
 		}
 		
 		if (stepMode){
+			//reset sleep time
+			sleep = 0;
 			//***label peak of steps
 			// 1) if count < limit
 			if(count < limit){
@@ -233,7 +235,6 @@ public class FitbitPlot {
 				if (step > stepPrevious){
 					isPeak[count] = 1;
 				}
-
 			}
 			else{
 				// 2) if count = limit

@@ -187,36 +187,71 @@ public class FitbitPlot {
 		StdDraw.clear();
 		//***draw x and y axis
 		axis(timestamp);
-		//***draw x,y,z points
+		//***draw x,y,z points and peak labels
 		if (count<limit-1){
 			x[count] = readX;
 			y[count] = readY;
 			z[count] = readZ;
 			time[count] = timestamp;
+			//detect if there is a new peak
+			if (step > stepPrevious){
+				isPeak[count] = 1;
+			}
 			//draw the plot (x,y,z)
 			for(int i = 0; i < limit; i++){
 				if(x[i]!=0){
 					plot(x[i],y[i],z[i],time[i]);
 				}
 			}
+
+			if(stepMode){
+				//label peaks
+				for(int i = 0; i < limit; i++){
+					if(isPeak[i]==1){
+						labelPeak(time[i]);
+					}
+				}
+			}
 		}
 		else{
 			//previous plots
+			//move previous labels to the left
 			for(int i = 0; i < limit-1; i++){
 				x[i] = x[i+1];
 				y[i] = y[i+1];
 				z[i] = z[i+1];
 				time[i] = time[i+1];
+				isPeak[i] = isPeak[i+1];
 			}
 			//new points
 			x[limit-1] = readX;
 			y[limit-1] = readY;
 			z[limit-1] = readZ;
 			time[limit-1] = timestamp;
+
+			//detect if there is a new peak (only do this under step mode)
+			if (stepMode && step > stepPrevious){
+				isPeak[limit-1] = 1;
+			}
+			else{
+				isPeak[limit-1] = 0;
+			}
+
 			//draw
 			for(int i = 0; i < limit; i++){
+				//draw x,y,z
 				plot(x[i],y[i],z[i],time[i]);
 			}
+
+			if(stepMode){
+				//label peaks
+				for(int i = 0; i < limit; i++){
+					if(isPeak[i]==1){
+						labelPeak(time[i]);
+					}
+				}
+			}
+
 			count = count - 1;
 		}
 
@@ -224,47 +259,12 @@ public class FitbitPlot {
 		if(stepPrevious>0 && step == 0){
 			stepResetTime = timestamp;
 		}
-		
+
+		stepPrevious = step;
+
 		if (stepMode){
 			//reset sleep time
 			sleep = 0;
-			//***label peak of steps
-			// 1) if count < limit
-			if(count < limit){
-				//detect if there is a new peak
-				if (step > stepPrevious){
-					isPeak[count] = 1;
-				}
-			}
-			else{
-				// 2) if count = limit
-				//move previous labels to the left
-				for(int i = 0; i<limit-1; i++){
-					isPeak[i] = isPeak[i+1];
-				}
-				//detect if there is a new peak
-				if (step > stepPrevious){
-					isPeak[limit-1] = 1;
-				}
-				else{
-					isPeak[limit-1] = 0;
-				}
-			}
-
-			// 3) label peaks
-			for(int i = 0; i<limit; i++){
-				if(isPeak[i]==1){
-					labelPeak(time[i]);
-				}
-			}
-
-			stepPrevious = step;
-		}
-		else{
-			//clear previous labels
-			for(int i = 0; i<limit; i++){
-				isPeak[i] = 0;
-			}
 		}
 
 		//***draw text indicators
@@ -323,7 +323,7 @@ public class FitbitPlot {
 	}
 
 	public void labelPeak(int t){
-		if (t > 1000*timeLabelStart){
+		if (t >= 1000*timeLabelStart){
 			font = new Font("Arial", Font.BOLD, 12);
 			StdDraw.setFont(font);
 			StdDraw.setPenColor(StdDraw.ORANGE);

@@ -3,8 +3,8 @@
 */
 
 /* temporary storage for register contents */
-byte r[32];
-byte s;
+volatile byte r[32];
+volatile byte s;
 
 extern "C" {
   void printRegs();

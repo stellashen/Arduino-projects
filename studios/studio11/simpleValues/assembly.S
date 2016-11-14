@@ -6,7 +6,8 @@
 
 .global giveMeMax
 giveMeMax:
-  ldi r24, 1 // Load the value 1 into register 24
+//  ldi r24, 1 // Load the value 1 into register 24
+  ldi r24, 128 // Load the value 128 into register 24
   ret
 
  // Define further "functions" below:
@@ -14,3 +15,17 @@ giveMeMax:
  // functionName:
  //   *code*
  //   ret
+
+ .global giveMeZero
+ giveMeZero:
+ call printRegs
+   ldi r24, 0
+ call printRegs
+   ret
+
+ .global addFour
+ addFour:
+   ldi r23, 4
+   add r24, r23
+   ret
+

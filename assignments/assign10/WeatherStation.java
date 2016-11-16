@@ -1,29 +1,156 @@
 package assign10;
 
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import assign5.morse.ViewOutputStream;
 import studio4.SerialComm;
 
 public class WeatherStation {
+	private int header,key;
+	final private DataInputStream d;
+
+	public WeatherStation() {
+		SerialComm port = new SerialComm(); 
+		InputStream input = port.getInputStream();
+		d = new DataInputStream(input);
+	}
+
+	public enum State { idle,up0,up1,up2,up3,up4,up5,up6 };
+	State counterState = State.idle;
+	State nextState(State state) throws IOException {
+		switch (state){
+		case idle:
+			header = d.read();//read the next byte
+			if (header==0x21){ 
+				key = d.read();
+				if (key==0x30){
+					state = State.up0;
+				}
+				else if (key==0x31){
+					state = State.up1;
+				}
+				else if (key==0x32){
+					state = State.up2;
+				}
+				else if (key==0x33){
+					state = State.up3;
+				}
+				else if (key==0x34){
+					state = State.up4;
+				}
+				else if (key==0x35){
+					state = State.up5;
+				}
+				else if (key==0x36){
+					state = State.up6;
+				}
+				else {
+					state = State.idle;
+				}
+			}
+			else {
+				state = State.idle;
+			}
+			break;
+
+		case up0:
+			System.out.print("debugging string:");
+			String debugMessage = d.readUTF();
+			System.out.println(debugMessage);
+			state = State.idle;
+			break;
+
+		case up1:
+			System.out.print("error string:");
+			String errorMessage = d.readUTF();
+			System.out.println(errorMessage);
+			state = State.idle;
+			break;
+
+		case up2:
+			System.out.print("timestamp:");
+			int t = d.readInt();
+			System.out.println(t);
+			state = State.idle;
+			break;
+
+		case up3:
+			System.out.print("potentiometer reading:");
+			int pot = d.readShort();
+			System.out.println(pot);
+			state = State.idle;
+			break;
+
+		case up4:
+			System.out.print("raw unfiltered temperature reading:");
+			int raw = d.readShort();
+			System.out.println(raw);
+			state = State.idle;
+			break;
+
+		case up5:
+			System.out.print("converted unfiltered temperature reading:");
+			float temp = d.readFloat();
+			System.out.println(temp);
+			state = State.idle;
+			break;
+
+		case up6:
+			System.out.print("filtered temperature reading:");
+			float temp2 = d.readFloat();
+			System.out.println(temp2);
+			state = State.idle;
+			break;
+		}
+		return state;
+	}
+
+	public void run(){
+		while(true){
+			try {
+				if(d.available()>0){
+					counterState = nextState(counterState);
+				}
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+
 
 	public static void main(String[] args) throws Exception {
 		// Create a new instance of WeatherStation
 		WeatherStation location = new WeatherStation();
 
+		// declare variable
+		boolean display = false;
 
-		// Based on the name of the instance created above, call xx.sendGet().
-		// This will test to the function we'll be creating below.
-		location.sendGet();
+		// Code from assign5.SerialOutput.java
+		SerialComm port = new SerialComm(); 
+		port.connect("/dev/cu.usbserial-DN01JD4W");
+		try {
+			// Code from assign4.MsgReceiver.java
+			location.run();
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 
+		if(display){
+			// Based on the name of the instance created above, call xx.sendGet().
+			// This will test to the function we'll be creating below.
+			location.sendGet();
+		}
 	}
+
+
+
+
 
 	// HTTP GET request
 	private void sendGet() throws Exception {
@@ -133,24 +260,21 @@ public class WeatherStation {
 		// Now you're ready to implement this into your past code to send it to the Arduino.
 		// You also have to make a couple modifications to handle the switch location requests from Arduino.
 		// Choose three locations or more, but make sure one is Lopata Hall.
-		SerialComm port = new SerialComm(); 
+
+		//send weatherChar to Arduino to display
 		try {
-			port.connect("/dev/cu.usbserial-DN01JD4W");
-		} catch (Exception e1) {
+			SerialComm port = new SerialComm(); 
+			OutputStream out = port.getOutputStream();
+			out.write(weatherChar);
+			//				@SuppressWarnings("resource")
+			//				ViewOutputStream v = new ViewOutputStream(out);
+			//				v.write(weatherChar);
+			//				v.flush();
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			e.printStackTrace();
 		}
-		while(true){
-			try {
-				OutputStream out = port.getOutputStream();
-				@SuppressWarnings("resource")
-				ViewOutputStream v = new ViewOutputStream(out);
-					v.write(weatherChar);
-					v.flush();
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
+
+
 	}
 }

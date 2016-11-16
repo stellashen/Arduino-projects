@@ -1,10 +1,16 @@
 package assign10;
 
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
+import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+
+import assign5.morse.ViewOutputStream;
+import studio4.SerialComm;
 
 public class WeatherStation {
 
@@ -69,11 +75,11 @@ public class WeatherStation {
 		// For example: "summary":"Clear","icon":"clear-day","nearestStormDistance":27
 		// You should pull out JUST "clear-day"
 		int index = line.indexOf("\"icon\"");
-//		System.out.println(index);
+		//		System.out.println(index);
 		String subIcon = line.substring(index);
-//		System.out.println(subIcon);
+		//		System.out.println(subIcon);
 		String subIcon2 = subIcon.substring(8);
-//		System.out.println(subIcon2);
+		//		System.out.println(subIcon2);
 		int indexLast = subIcon2.indexOf('"');
 		String icon = subIcon2.substring(0, indexLast);
 		System.out.println(icon);
@@ -127,5 +133,24 @@ public class WeatherStation {
 		// Now you're ready to implement this into your past code to send it to the Arduino.
 		// You also have to make a couple modifications to handle the switch location requests from Arduino.
 		// Choose three locations or more, but make sure one is Lopata Hall.
+		SerialComm port = new SerialComm(); 
+		try {
+			port.connect("/dev/cu.usbserial-DN01JD4W");
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		while(true){
+			try {
+				OutputStream out = port.getOutputStream();
+				@SuppressWarnings("resource")
+				ViewOutputStream v = new ViewOutputStream(out);
+					v.write(weatherChar);
+					v.flush();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 }

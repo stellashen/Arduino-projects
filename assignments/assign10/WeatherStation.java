@@ -12,11 +12,21 @@ import studio4.SerialComm;
 public class WeatherStation {
 	private int header,key;
 	final private DataInputStream d;
+	int time;
+	int lastTimeRequest;
+	// Create a string that contains the URL you created for Lopata Hall in Studio 10
+	// Use the URL that DOES NOT have the timestamp included.
+	// Since we only need the current data (currently) you can use the API to exclude all of the excess blocks (REQUIRED).
+	// Instructions to do that are here: https://darksky.net/dev/docs/forecast
+	// Test this new URL by pasting it in your web browser. You should only see the information about the current weather.
+	final private String lopata = "https://api.darksky.net/forecast/c49524f84b5f40867542b9e381c9cf80/38.649196,-90.306099?exclude=minutely,hourly,daily,alerts,flags";
+	final private String zoo = "https://api.darksky.net/forecast/c49524f84b5f40867542b9e381c9cf80/38.638591,-90.293997?exclude=minutely,hourly,daily,alerts,flags";
+	final private String kayaks = "https://api.darksky.net/forecast/c49524f84b5f40867542b9e381c9cf80/38.6563984,-90.306171?exclude=minutely,hourly,daily,alerts,flags";
+	private String locationChoice = "";
+	private String lastLocationChoice = "";
 
-	public WeatherStation() {
-		SerialComm port = new SerialComm(); 
-		InputStream input = port.getInputStream();
-		d = new DataInputStream(input);
+	public WeatherStation(InputStream in) {
+		d = new DataInputStream(in);
 	}
 
 	public enum State { idle,up0,up1,up2,up3,up4,up5,up6 };
@@ -30,26 +40,11 @@ public class WeatherStation {
 				if (key==0x30){
 					state = State.up0;
 				}
-				else if (key==0x31){
-					state = State.up1;
-				}
 				else if (key==0x32){
 					state = State.up2;
 				}
 				else if (key==0x33){
 					state = State.up3;
-				}
-				else if (key==0x34){
-					state = State.up4;
-				}
-				else if (key==0x35){
-					state = State.up5;
-				}
-				else if (key==0x36){
-					state = State.up6;
-				}
-				else {
-					state = State.idle;
 				}
 			}
 			else {
@@ -64,17 +59,10 @@ public class WeatherStation {
 			state = State.idle;
 			break;
 
-		case up1:
-			System.out.print("error string:");
-			String errorMessage = d.readUTF();
-			System.out.println(errorMessage);
-			state = State.idle;
-			break;
-
 		case up2:
 			System.out.print("timestamp:");
-			int t = d.readInt();
-			System.out.println(t);
+			time = d.readInt();
+			System.out.println(time);
 			state = State.idle;
 			break;
 
@@ -82,27 +70,18 @@ public class WeatherStation {
 			System.out.print("potentiometer reading:");
 			int pot = d.readShort();
 			System.out.println(pot);
+			if(pot<200){
+				locationChoice=zoo;
+			}
+			else if(pot>900){
+				locationChoice=kayaks;
+			}
+			else{
+				locationChoice=lopata;
+			}
 			state = State.idle;
 			break;
-
-		case up4:
-			System.out.print("raw unfiltered temperature reading:");
-			int raw = d.readShort();
-			System.out.println(raw);
-			state = State.idle;
-			break;
-
-		case up5:
-			System.out.print("converted unfiltered temperature reading:");
-			float temp = d.readFloat();
-			System.out.println(temp);
-			state = State.idle;
-			break;
-
-		case up6:
-			System.out.print("filtered temperature reading:");
-			float temp2 = d.readFloat();
-			System.out.println(temp2);
+		default:
 			state = State.idle;
 			break;
 		}
@@ -124,15 +103,20 @@ public class WeatherStation {
 
 
 	public static void main(String[] args) throws Exception {
+		SerialComm port = new SerialComm(); 
+		try {
+			port.connect("/dev/cu.usbserial-DN01JD4W");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		InputStream input = port.getInputStream();
 		// Create a new instance of WeatherStation
-		WeatherStation location = new WeatherStation();
+		WeatherStation location = new WeatherStation(input);
 
-		// declare variable
-		boolean display = false;
 
 		// Code from assign5.SerialOutput.java
-		SerialComm port = new SerialComm(); 
-		port.connect("/dev/cu.usbserial-DN01JD4W");
+
 		try {
 			// Code from assign4.MsgReceiver.java
 			location.run();
@@ -141,29 +125,36 @@ public class WeatherStation {
 			e1.printStackTrace();
 		}
 
+		checkDisplay();
+		
 		if(display){
+			display = false;
 			// Based on the name of the instance created above, call xx.sendGet().
 			// This will test to the function we'll be creating below.
 			location.sendGet();
 		}
+
 	}
 
+	void checkDisplay(){
+		// declare variable
+		boolean display = false;
 
+		if(time-lastTimeRequest>=60000){
+			lastTimeRequest=time;
+			display = true;
+		}
 
-
+		if(locationChoice!=lastLocationChoice){
+			lastLocationChoice = locationChoice;
+			display = true;
+		}
+	}
 
 	// HTTP GET request
 	private void sendGet() throws Exception {
-
-		// Create a string that contains the URL you created for Lopata Hall in Studio 10
-		// Use the URL that DOES NOT have the timestamp included.
-		// Since we only need the current data (currently) you can use the API to exclude all of the excess blocks (REQUIRED).
-		// Instructions to do that are here: https://darksky.net/dev/docs/forecast
-		// Test this new URL by pasting it in your web browser. You should only see the information about the current weather.
-		String lopata = "https://api.darksky.net/forecast/c49524f84b5f40867542b9e381c9cf80/38.649196,-90.306099?exclude=minutely,hourly,daily,alerts,flags";
-
 		// Create a new URL object with the URL string you defined above. Reference: https://docs.oracle.com/javase/7/docs/api/java/net/URL.html
-		URL url = new URL(lopata);
+		URL url = new URL(locationChoice);
 
 		// Follow the instructions in the URL API to open this connection.
 		// Cast this to a HttpURLConnection and save it in a new HttpURLConnection object.
@@ -188,14 +179,14 @@ public class WeatherStation {
 		InputStream in = connection.getInputStream();
 
 		// Wrap it in a DataInputStream
-		DataInputStream d = new DataInputStream(in);
+		DataInputStream da = new DataInputStream(in);
 
 
 		// Read a line and save it in a string
-		String line = d.readLine();
+		String line = da.readLine();
 
 		// Close the InputStream
-		d.close();
+		da.close();
 
 
 		// Using string manipulation tools, pull out the string between quotes after "icon:"

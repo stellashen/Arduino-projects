@@ -8,10 +8,12 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import studio4.SerialComm;
+import studio4.ViewInputStream;
 
 public class WeatherStation {
 	private int header,key;
-	final private DataInputStream d;
+	final private ViewInputStream vis;
+	boolean display = false;
 	int time;
 	int lastTimeRequest;
 	// Create a string that contains the URL you created for Lopata Hall in Studio 10
@@ -22,16 +24,18 @@ public class WeatherStation {
 	final private String lopata = "https://api.darksky.net/forecast/c49524f84b5f40867542b9e381c9cf80/38.649196,-90.306099?exclude=minutely,hourly,daily,alerts,flags";
 	final private String zoo = "https://api.darksky.net/forecast/c49524f84b5f40867542b9e381c9cf80/38.638591,-90.293997?exclude=minutely,hourly,daily,alerts,flags";
 	final private String kayaks = "https://api.darksky.net/forecast/c49524f84b5f40867542b9e381c9cf80/38.6563984,-90.306171?exclude=minutely,hourly,daily,alerts,flags";
-	private String locationChoice = "";
+	private String locationChoice = lopata;
 	private String lastLocationChoice = "";
 
 	public WeatherStation(InputStream in) {
-		d = new DataInputStream(in);
+		vis = new ViewInputStream(in);
+		display = false;
 	}
 
 	public enum State { idle,up0,up1,up2,up3,up4,up5,up6 };
 	State counterState = State.idle;
 	State nextState(State state) throws IOException {
+		DataInputStream d = new DataInputStream(vis);
 		switch (state){
 		case idle:
 			header = d.read();//read the next byte
@@ -70,10 +74,10 @@ public class WeatherStation {
 			System.out.print("potentiometer reading:");
 			int pot = d.readShort();
 			System.out.println(pot);
-			if(pot<200){
+			if(pot<500){
 				locationChoice=zoo;
 			}
-			else if(pot>900){
+			else if(pot>600){
 				locationChoice=kayaks;
 			}
 			else{
@@ -89,73 +93,81 @@ public class WeatherStation {
 	}
 
 	public void run(){
-		while(true){
-			try {
-				if(d.available()>0){
+		try
+		{
+			while(true){
+				if (vis.available()>0){
+					//								int numBytes = vis.available();
+					//								System.out.println(numBytes+" bytes can be read from this port.");
 					counterState = nextState(counterState);
+
+					if(time-lastTimeRequest>=60000){
+						lastTimeRequest=time;
+						display = true;
+					}
+
+					if(locationChoice!=lastLocationChoice){
+						lastLocationChoice = locationChoice;
+						display = true;
+					}
+
+					if(display){
+						break;
+					}
 				}
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
 		}
+
+		catch ( Exception e )
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}	
 	}
 
 
 	public static void main(String[] args) throws Exception {
-		SerialComm port = new SerialComm(); 
-		try {
-			port.connect("/dev/cu.usbserial-DN01JD4W");
-		} catch (Exception e) {
+		try
+		{        	
+			SerialComm s = new SerialComm();
+			s.connect("/dev/cu.usbserial-DN01JD4W"); // Adjust this to be the right port for your machine
+			InputStream in = s.getInputStream();
+			WeatherStation msgr = new WeatherStation(in);
+			while(true){
+				msgr.run();
+
+				// Based on the name of the instance created above, call xx.sendGet().
+				// This will test to the function we'll be creating below.
+				msgr.sendGet();
+			}
+		}
+		catch ( Exception e )
+		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-		InputStream input = port.getInputStream();
-		// Create a new instance of WeatherStation
-		WeatherStation location = new WeatherStation(input);
-
-
-		// Code from assign5.SerialOutput.java
-
-		try {
-			// Code from assign4.MsgReceiver.java
-			location.run();
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-
-		checkDisplay();
-		
-		if(display){
-			display = false;
-			// Based on the name of the instance created above, call xx.sendGet().
-			// This will test to the function we'll be creating below.
-			location.sendGet();
-		}
-
-	}
-
-	void checkDisplay(){
-		// declare variable
-		boolean display = false;
-
-		if(time-lastTimeRequest>=60000){
-			lastTimeRequest=time;
-			display = true;
-		}
-
-		if(locationChoice!=lastLocationChoice){
-			lastLocationChoice = locationChoice;
-			display = true;
 		}
 	}
 
 	// HTTP GET request
 	private void sendGet() throws Exception {
+		//		boolean display = false;
+
+		//		if(time-lastTimeRequest>=60000){
+		//			lastTimeRequest=time;
+		//			display = true;
+		//		}
+		//
+		//		if(locationChoice!=lastLocationChoice){
+		//			lastLocationChoice = locationChoice;
+		//			display = true;
+		//		}
+		//
+		//		if(display){
+		display = false;
+
 		// Create a new URL object with the URL string you defined above. Reference: https://docs.oracle.com/javase/7/docs/api/java/net/URL.html
 		URL url = new URL(locationChoice);
-
+System.out.println(locationChoice);
 		// Follow the instructions in the URL API to open this connection.
 		// Cast this to a HttpURLConnection and save it in a new HttpURLConnection object.
 		HttpURLConnection connection = (HttpURLConnection)url.openConnection();
@@ -265,7 +277,6 @@ public class WeatherStation {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
-
 	}
+	//	}
 }

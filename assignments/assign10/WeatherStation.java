@@ -9,13 +9,12 @@ public class WeatherStation {
 
 	public static void main(String[] args) throws Exception {
 		// Create a new instance of WeatherStation
-		WeatherStation location = null;
+		WeatherStation location = new WeatherStation();
 
 
 		// Based on the name of the instance created above, call xx.sendGet().
 		// This will test to the function we'll be creating below.
 		location.sendGet();
-
 
 	}
 
@@ -27,48 +26,43 @@ public class WeatherStation {
 		// Since we only need the current data (currently) you can use the API to exclude all of the excess blocks (REQUIRED).
 		// Instructions to do that are here: https://darksky.net/dev/docs/forecast
 		// Test this new URL by pasting it in your web browser. You should only see the information about the current weather.
-		String lopata = "38.649196,-90.306099";
-
+		String lopata = "https://api.darksky.net/forecast/c49524f84b5f40867542b9e381c9cf80/38.649196,-90.306099?exclude=minutely,hourly,daily,alerts,flags";
 
 		// Create a new URL object with the URL string you defined above. Reference: https://docs.oracle.com/javase/7/docs/api/java/net/URL.html
-
-
+		URL url = new URL(lopata);
 
 		// Follow the instructions in the URL API to open this connection.
 		// Cast this to a HttpURLConnection and save it in a new HttpURLConnection object.
-
-
+		HttpURLConnection connection = (HttpURLConnection)url.getContent();
 
 		// Use the HttpURLConnection API to setup the HttpURLConnection you defined above.
 		// Reference: https://docs.oracle.com/javase/7/docs/api/java/net/HttpURLConnection.html
 		// Set the request method.
-
-
+		connection.getRequestMethod();
 
 		// Set the request property "User-Agent" to the User-Agent you saw in Wireshark when you did the first exercise in studio.
 		// Repeat the quick wireshark example if you've forgotten. It should be in the form "xxxxxxx/#.#"
-
-
+		connection.setRequestProperty("User-Agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:49.0) Gecko/2010010 Firefox/49.0");
+		connection.connect();
 
 		// To debug, get and print out the response code.
-
+		System.out.println(connection.getResponseCode());
 
 
 		// The rest of the code should be much more familiar.
 		// Create an InputStream that gets the input stream from our HttpURLConnection object.
-
-
+		InputStream in = connection.getInputStream();
 
 		// Wrap it in a DataInputStream
-
+		DataInputStream d = new DataInputStream(in);
 
 
 		// Read a line and save it in a string
-
+		String line = d.readLine();
 
 
 		// Close the InputStream
-
+		d.close();
 
 
 		// Using string manipulation tools, pull out the string between quotes after "icon:"

@@ -1,6 +1,7 @@
 package assign10;
 
 import java.io.InputStream;
+import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -33,7 +34,7 @@ public class WeatherStation {
 
 		// Follow the instructions in the URL API to open this connection.
 		// Cast this to a HttpURLConnection and save it in a new HttpURLConnection object.
-		HttpURLConnection connection = (HttpURLConnection)url.getContent();
+		HttpURLConnection connection = (HttpURLConnection)url.openConnection();
 
 		// Use the HttpURLConnection API to setup the HttpURLConnection you defined above.
 		// Reference: https://docs.oracle.com/javase/7/docs/api/java/net/HttpURLConnection.html
@@ -47,7 +48,7 @@ public class WeatherStation {
 
 		// To debug, get and print out the response code.
 		System.out.println(connection.getResponseCode());
-
+		// The output should be 200.
 
 		// The rest of the code should be much more familiar.
 		// Create an InputStream that gets the input stream from our HttpURLConnection object.
@@ -60,7 +61,6 @@ public class WeatherStation {
 		// Read a line and save it in a string
 		String line = d.readLine();
 
-
 		// Close the InputStream
 		d.close();
 
@@ -68,8 +68,15 @@ public class WeatherStation {
 		// Using string manipulation tools, pull out the string between quotes after "icon:"
 		// For example: "summary":"Clear","icon":"clear-day","nearestStormDistance":27
 		// You should pull out JUST "clear-day"
-
-
+		int index = line.indexOf("\"icon\"");
+//		System.out.println(index);
+		String subIcon = line.substring(index);
+//		System.out.println(subIcon);
+		String subIcon2 = subIcon.substring(8);
+//		System.out.println(subIcon2);
+		int indexLast = subIcon2.indexOf('"');
+		String icon = subIcon2.substring(0, indexLast);
+		System.out.println(icon);
 
 		// You will set this char (in a switch statement) to one of the 5 types of weather. (Nothing TODO here)
 		char weatherChar = '\0';
@@ -81,8 +88,41 @@ public class WeatherStation {
 		// If the value if wind, set it to W
 		// If the value is any of the clear ones, set it to S
 		// If the value is any type of precipitation, set it to P
-
-
+		switch(icon){
+		case "cloudy":
+			weatherChar = 'C';
+			break;
+		case "partly-cloudy-day":
+			weatherChar = 'C';
+			break;
+		case "partly-cloudy-night":
+			weatherChar = 'C';
+			break;
+		case "fog":
+			weatherChar = 'F';
+			break;
+		case "wind":
+			weatherChar = 'W';
+			break;
+		case "clear-day":
+			weatherChar = 'S';
+			break;
+		case "clear-night":
+			weatherChar = 'S';
+			break;
+		case "rain":
+			weatherChar = 'P';
+			break;
+		case "snow":
+			weatherChar = 'P';
+			break;
+		case "sleet":
+			weatherChar = 'P';
+			break;
+		default:
+			weatherChar = 'I';//I for invalid
+			break;
+		}
 
 		// Now you're ready to implement this into your past code to send it to the Arduino.
 		// You also have to make a couple modifications to handle the switch location requests from Arduino.

@@ -15,9 +15,14 @@ void setup() {
 	Serial.println(b);
 
 	/* add further code here */
-	byte c = addFour(a);
+	//byte c = addFour(a);
+	//test overflow
+	byte c = addFour(255);
+	//this will return c = 3
 	Serial.print("c = ");
 	Serial.println(c);
+	
+	turnOnLight();
 	
 	// Makes sure you returned from all your functions:
 	Serial.println("Ended setup!");

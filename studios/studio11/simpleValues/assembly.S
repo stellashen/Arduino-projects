@@ -27,5 +27,13 @@ giveMeMax:
  addFour:
    ldi r23, 4
    add r24, r23
+//   adc r24, r23
+ call printRegs
    ret
 
+.global turnOnLight
+turnOnLight:
+sbi _SFR_IO_ADDR(DDRB),PIN5
+sbi _SFR_IO_ADDR(PORTB),1
+//cbi PORTB,
+ret

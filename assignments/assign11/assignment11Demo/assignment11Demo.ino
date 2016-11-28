@@ -23,38 +23,38 @@ void setup() {
     Serial.print(": ");
     Serial.println(intToAscii(i));
   }
-
-  Serial.print("Should be 12: ");
-  Serial.println(byteToInt(12));
-  Serial.print("Should be -12: ");
-  Serial.println(byteToInt(-12));
-  Serial.print("Should be 12: ");
-  Serial.println(byteToInt(12));
-
-  a = 122; b = 123;
-  Serial.print("Should be 245: ");  
-  Serial.println(addBytes(a, b));
-
-  a = 127; b=127;
-  Serial.print("Should be 254: ");  
-  Serial.println(addBytes(a, b));
-
-  a = -1; b=-1;
-  Serial.print("Should be -2: ");   
-  Serial.println(addBytes(a, b));
-
-
-  Serial.print("Should be 3: ");
-  Serial.println(average(2, 4));
-
-  Serial.print("Should be 10: ");
-  Serial.println(average(5, 16));
-  
-  Serial.print("Should be 64: ");
-  Serial.println(average(69, 60));
-
-  Serial.print("Should be -12: ");
-  Serial.println(average(431, 57));
+//
+//  Serial.print("Should be 12: ");
+//  Serial.println(byteToInt(12));
+//  Serial.print("Should be -12: ");
+//  Serial.println(byteToInt(-12));
+//  Serial.print("Should be 12: ");
+//  Serial.println(byteToInt(12));
+//
+//  a = 122; b = 123;
+//  Serial.print("Should be 245: ");  
+//  Serial.println(addBytes(a, b));
+//
+//  a = 127; b=127;
+//  Serial.print("Should be 254: ");  
+//  Serial.println(addBytes(a, b));
+//
+//  a = -1; b=-1;
+//  Serial.print("Should be -2: ");   
+//  Serial.println(addBytes(a, b));
+//
+//
+//  Serial.print("Should be 3: ");
+//  Serial.println(average(2, 4));
+//
+//  Serial.print("Should be 10: ");
+//  Serial.println(average(5, 16));
+//  
+//  Serial.print("Should be 64: ");
+//  Serial.println(average(69, 60));
+//
+//  Serial.print("Should be -12: ");
+//  Serial.println(average(431, 57));
 
   Serial.println("Ended setup!");
 }

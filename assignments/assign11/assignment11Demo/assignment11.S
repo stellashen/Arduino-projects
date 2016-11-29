@@ -20,35 +20,40 @@ ret
 
 .global byteToInt
 byteToInt:
-push r2
-mov r2, r24
-//binary 10000000 = dec -128
-//binary 1000 0000 0000 0000 = dec -2^16 = -65536
-//bitwise and: has 1 where both bits are 1
-and r24, -128
-//if negative, value = 10000000; if positive, value = 00000000
-lsr r24
-lsr r24
-lsr r24
-lsr r24
-lsr r24
-lsr r24
-lsr r24
+//copy the original value from r24 to r20
+mov r20, r24
+//shift right for seven times
+lsr r20
+lsr r20
+lsr r20
+lsr r20
+lsr r20
+lsr r20
+lsr r20
 //if negative, value = 00000001; if positive, value = 00000000
 
+//binary 10000000 = dec -128; 01111111 = 127
+//value range [-128,127]
+//1111 1111 0000 0000 = -256 < -128
+//if it's negative, the higher byte must be 1111 1111 (signed binary) = -1
+//if it's positve, the higher byte must be 0
 
+ldi r22,0
+sub r22,r20
 //load it to r25 (higher byte)
-lds r25, r24
-//turn the first bit to 0, and load that value to r24 (lower byte)
-lsl r2
-lsr r2
-lds r24,r2
-pop r2
+mov r25,r22
+
+//if it's positive, lower byte is the original value
+//if it's negative, lower byte is the original value
+//1111 1111 1000 0000 = -128
+//1111 1111 1000 0001 = -127
+//so no need to change r24
 ret
 
 .global addBytes
 addBytes:
 ret
+
 .global average
 average:
 ret

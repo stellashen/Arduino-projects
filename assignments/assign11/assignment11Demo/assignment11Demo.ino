@@ -23,14 +23,14 @@ void setup() {
     Serial.print(": ");
     Serial.println(intToAscii(i));
   }
-//
-//  Serial.print("Should be 12: ");
-//  Serial.println(byteToInt(12));
-//  Serial.print("Should be -12: ");
-//  Serial.println(byteToInt(-12));
-//  Serial.print("Should be 12: ");
-//  Serial.println(byteToInt(12));
-//
+
+  Serial.print("Should be 12: ");
+  Serial.println(byteToInt(12));
+  Serial.print("Should be -12: ");
+  Serial.println(byteToInt(-12));
+  Serial.print("Should be 12: ");
+  Serial.println(byteToInt(12));
+
 //  a = 122; b = 123;
 //  Serial.print("Should be 245: ");  
 //  Serial.println(addBytes(a, b));

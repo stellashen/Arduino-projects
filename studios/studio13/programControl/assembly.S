@@ -44,13 +44,16 @@ mov r24,r18
 
 .global slowExponent
 slowExponent:
-call printRegs
-//sum = 0
-ldi r18,0
+//To see which registers are used for char
+  //call printRegs
+//same with the previous functions — r24 and r22
+
+//sum = 1
+ldi r18,1
 //i = 0
 ldi r19,0
 //store 1
-ldi r27 = 1
+ldi r27,1
 bigLoop:
 //compare i and power
 cp r19,r22

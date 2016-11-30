@@ -50,8 +50,12 @@ mov r25,r22
 //so no need to change r24
 ret
 
+//a: r24
+//b: r22
 .global addBytes
 addBytes:
+//use byteToInt function
+add r24,r22
 ret
 
 .global average

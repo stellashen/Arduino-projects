@@ -44,17 +44,17 @@ void setup() {
   Serial.println(addBytes(a, b));
 
 
-//  Serial.print("Should be 3: ");
-//  Serial.println(average(2, 4));
-//
-//  Serial.print("Should be 10: ");
-//  Serial.println(average(5, 16));
-//  
-//  Serial.print("Should be 64: ");
-//  Serial.println(average(69, 60));
-//
-//  Serial.print("Should be -12: ");
-//  Serial.println(average(431, 57));
+  Serial.print("Should be 3: ");
+  Serial.println(average(2, 4));
+
+  Serial.print("Should be 10: ");
+  Serial.println(average(5, 16));
+  
+  Serial.print("Should be 64: ");
+  Serial.println(average(69, 60));
+
+  Serial.print("Should be -12: ");
+  Serial.println(average(431, 57));
 
   Serial.println("Ended setup!");
 }

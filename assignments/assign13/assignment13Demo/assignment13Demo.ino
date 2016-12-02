@@ -27,16 +27,16 @@ void setup() {
 
   Serial.print("Should be 9: ");
   Serial.println(divide(95, 10));
-
-  byte d[] = {1, 2, 3};
-  byte e[] = {4, 5, 6};
-  Serial.print("Should be 32: ");
-  Serial.println(dot(d, e, 3));
-
-  byte f[] = {7, 20, 19, 11};
-  byte g[] = {132, 51, 0, 84, 30};
-  Serial.print("Should be 2988: ");
-  Serial.println(dot(f, g, 5));
+//
+//  byte d[] = {1, 2, 3};
+//  byte e[] = {4, 5, 6};
+//  Serial.print("Should be 32: ");
+//  Serial.println(dot(d, e, 3));
+//
+//  byte f[] = {7, 20, 19, 11};
+//  byte g[] = {132, 51, 0, 84, 30};
+//  Serial.print("Should be 2988: ");
+//  Serial.println(dot(f, g, 5));
 }
 
 void loop() { /* unused */ }

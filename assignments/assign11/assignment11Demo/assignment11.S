@@ -57,6 +57,7 @@ ret
 //b: r22
 .global addBytes
 addBytes:
+//call printRegs
 //store b in r17
 push r17
 mov r17,r22

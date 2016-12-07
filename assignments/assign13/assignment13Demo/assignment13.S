@@ -21,8 +21,6 @@ ret
 
 .global sumArray
 sumArray:
-push r30
-push r31
 push r10
 push r11
 ldi r27,1
@@ -55,51 +53,112 @@ greateq:
 //return 16-bit
 mov r24,r10
 mov r25,r11
-pop r30
-pop r31
 pop r10
 pop r11
 ret
 
+
+//avg of bytes should be a byte
 .global avgArray
 avgArray:
 push r2
-push r3
 //store the length of array in call-saved register r2
 mov r2,r22
 call sumArray
-//return 16-bit value in r24,r25
-mov r22,r2
-call divide
+//return 16-bit value in r24,r25 (unsigned bytes)
+//divide this value by the length (stored in r2)
+//call printRegs
 
-//store the higher byte (after left shift 7 times) in r3
-// e.g. original r25: 0000 0001 ; r3: 1000 0000
-lsl r25
-lsl r25
-lsl r25
-lsl r25
-lsl r25
-lsl r25
-lsl r25
-mov r3,r25
-
-//divide lower byte
-call divide
-mov r4,r24
-
-//divide higher byte
-mov r24,r3
-call divide
-//multiply by 10
-ldi r20,2
-mul r24,r20
-add r24,r4
+//***slow divide
+//use r18 and r19 as constants 0 and 1
+//use r26 as the result of divide (avg of bytes is just one byte)
 ldi r18,0
-adc r25,r18
+ldi r19,1
+ldi r26,0
+
+//the dividend is divided by the divisor to get a quotient
+//slow divide a two-byte number by substracting
+beginsub:
+//exit if dividend (r25:r24) < divisor (length of array) (r18:r2)
+//quotient would be r26
+//compare two-byte numbers using cpc
+cp r24,r2
+cpc r25,r18
+brlt exitsub
+//if r24 < r2,exitsub; otherwise,procceed
+//substract r18:r2 from r24:r25
+//substract low byte
+sub r24,r2
+//substract high byte with carry
+sbc r25,r18
+//add 1 to the result of divide
+add r26,r19
+jmp beginsub
+exitsub:
+
+mov r24,r26
 pop r2
-pop r3
 ret
 
 .global dot
 dot:
+//the first array location: r24,r25
+//the second array location: r22,r23
+//the third byte: r20 (length of array)
+push r28
+push r29
+push r6
+push r7
+push r8
+// r6: i
+ldi r18,0
+mov r6,r18
+// r7: lower byte of sum of products
+// r8: higher byte
+mov r7,r18
+mov r8,r18
+
+//load location to Z
+mov r30,r24
+mov r31,r25
+//load location to Y
+mov r28,r22
+mov r29,r23
+
+useArray:
+ld r18,Z
+ld r19,Y
+
+//multiply r19,r18; copy result back in r19:r18
+//and then store the sum of products in r8:r7
+mul r19,r18
+movw r18,r0
+add r7,r18
+adc r8,r19
+
+//use r26 and r27 as constant 0 and 1
+ldi r26,0
+ldi r27,1
+//increment the pointer by 1
+add r30,r27
+adc r31,r26
+add r28,r27
+adc r29,r26
+//i=i+1
+add r6,r27
+//do jmp only when i < length of array
+cp r6,r20
+brge finish
+jmp useArray
+
+finish:
+mov r24,r7
+mov r25,r8
+
+pop r6
+pop r7
+pop r8
+pop r28
+pop r29
 ret
+

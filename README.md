@@ -10,7 +10,7 @@ Check out my (short) videos for showcasing the results:
 * (assignment 2) Wacky Washer: https://youtu.be/znEq2Ok1cGc
 * (assignment 3) Cricket: https://youtu.be/2rSaBHr3UU8
 * (assignment 6) Pixel Display: https://youtu.be/vTESHyECGiw
-* (assignment 8 & 9) Fitbit Clone: https://youtu.be/2oosXBeFeDw
+* (assignment 8 & 9) Health Monitoring Device: https://youtu.be/2oosXBeFeDw
 
 The **instructions** directory contains instructions for these projects.
 
